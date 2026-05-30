@@ -1,0 +1,70 @@
+Authentication and Authorization
+
+1- If you define in app.module.ts, It will be globally applicable
+  
+providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,     // 🔐 Auth first
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,       // 🧑‍💼 Role check
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard, // 🎯 Permission check
+    },
+  ],
+  
+
+priority/ validation steps : order matters
+First: Authentication (JwtAuthGuard)
+Second: Authorization (RolesGuard)
+Third: Authorization (PermissionsGuard)
+
+Notes:
+Without @Roles() / @Permissions()
+For example
+@UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)   : tells that authentication, roles and permission need to check.
+@Post()                                                  : So either put in app.module.ts or in controller method
+RolesGuard → sees no roles → allows 
+PermissionsGuard → sees no permissions → allows 
+Result: ANY authenticated user can access
+
+If you put only this:
+@Roles('retailer')
+@Permissions('product:create')
+@Post()
+
+-----------------------------------------------------
+When it WILL work
+Case 1: You use guards locally
+@UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+@Roles('retailer')
+@Permissions('product:create')
+@Post()
+Case 2: Guards are global ⭐
+// app.module.ts
+{
+  provide: APP_GUARD,
+  useClass: JwtAuthGuard
+},
+{
+  provide: APP_GUARD,
+  useClass: RolesGuard
+},
+{
+  provide: APP_GUARD,
+  useClass: PermissionsGuard
+}
+
+👉 Then this works:
+
+@Roles('retailer')
+@Permissions('product:create')
+@Post()
+--------------------------
+Either define like this 
+//@UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+or
