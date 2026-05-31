@@ -6,7 +6,7 @@ class CartItem {
   @Prop({ type: Types.ObjectId, ref: 'Product', required: true })
   productId!: Types.ObjectId;
 
-  @Prop({ default: 1 })
+  @Prop({ type: Number, default: 1, min: 1 })
   quantity!: number;
 }
 
@@ -17,6 +17,29 @@ export class Cart {
 
   @Prop({ type: [CartItem], default: [] })
   items!: CartItem[];
+
+  // Coupon Info
+  @Prop({ type: String, default: null })
+  couponCode?: string | null;
+
+  @Prop({ type: Number, default: 0 })
+  discount?: number;
+
+  // Pricing
+  @Prop({ type: Number, default: 0 })
+  totalAmount?: number;
+
+  @Prop({ type: Number, default: 0 })
+  finalAmount?: number;
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart);
+
+// Fast lookup by user
+CartSchema.index({ userId: 1 });
+
+// Optional: query carts with coupons
+CartSchema.index({ couponCode: 1 });
+
+// Sorting / analytics
+CartSchema.index({ createdAt: -1 });

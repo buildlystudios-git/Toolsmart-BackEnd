@@ -25,7 +25,18 @@ export class ProductsService {
       throw new BadRequestException('Product with the same name already exists');
     }
 
-    return this.productModel.create(dto);
+    const product = {...dto};
+    if (dto.categoryId) {
+      try {
+        // @ts-ignore
+        product["categoryId"] = new Types.ObjectId(dto.categoryId);
+      } catch (error) {
+        throw new BadRequestException('Invalid category Id');
+      }
+    }
+
+    
+    return this.productModel.create(product);
   }
 
   // Find All (filters + pagination)
@@ -48,11 +59,19 @@ export class ProductsService {
     const filter: any = {  };
 
     if (id) {
-      filter._id = new Types.ObjectId(id);
+      try {
+        filter._id = new Types.ObjectId(id);
+      } catch (error) {
+        throw new BadRequestException('Invalid id');
+      }
     }
 
     if (categoryId) {
-      filter.categoryId = new Types.ObjectId(categoryId);
+      try {
+        filter.categoryId = new Types.ObjectId(categoryId);
+      } catch (error) {
+        throw new BadRequestException('Invalid category Id');
+      }
     }
 
     if (minPrice || maxPrice) {
@@ -119,12 +138,19 @@ export class ProductsService {
 
   // Delete
   async delete(id: string) {
-    const product = await this.productModel.findById(id);
-    if (!product) {
-        throw new NotFoundException('Product not found');
+    let productId: Types.ObjectId;
+    try {
+      productId = new Types.ObjectId(id);
+    } catch (error) {
+      throw new BadRequestException('Invalid id');
     }
 
-    await this.productModel.deleteOne({ _id: id });
+    const product = await this.productModel.findById(productId);
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    await this.productModel.deleteOne({ _id: productId });
 
     return { message: 'Product deleted' };
   }

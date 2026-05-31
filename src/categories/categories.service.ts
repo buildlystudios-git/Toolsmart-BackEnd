@@ -50,14 +50,23 @@ export class CategoriesService {
     const filter: any = {  };
 
     if (id) {
-      filter._id = new Types.ObjectId(id);
+      try {
+        filter._id = new Types.ObjectId(id);
+      } catch (error) {
+        throw new BadRequestException('Invalid category Id');
+      }
     }
     
     if (name) {
       filter.name = { $regex: name, $options: 'i' };
     }
 
-    return await this.categoryModel.find().sort({ order: 1 });
+    const categories = await this.categoryModel.find({...filter}).sort({ order: 1 });
+    if (Object.keys(filter).length > 0 && categories.length < 1) {
+      throw new NotFoundException('No categories found matching the criteria');
+    }
+    
+    return categories;
   }
 
   // Get by ID
