@@ -15,6 +15,7 @@ import { CartModule } from './carts/carts.module';
 import { OrdersModule } from './orders/orders.module';
 import { ApprovalsModule } from './approvals/approvals.module';
 import { CouponsModule } from './coupons/coupons.module';
+import { WishlistModule } from './wishlist/wishlist.module';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { CouponsModule } from './coupons/coupons.module';
     CartModule,
     OrdersModule,
     ApprovalsModule,
-    CouponsModule
+    CouponsModule,
+    WishlistModule
     ],
   controllers: [AppController],
   providers: [
