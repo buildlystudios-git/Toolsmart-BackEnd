@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard/jwt-auth.guard';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { UpdateToCartDto } from './dto/update-to-cart.dto';
+import { ApplyCouponDto } from './dto/apply-coupon.dto';
 
 @ApiTags('Cart')
 @ApiBearerAuth()
@@ -65,5 +66,22 @@ export class CartController {
       req.user.sub,
       productId,
     );
+  }
+
+  // POST /cart/apply-coupon
+  @Post('apply-coupon')
+  applyCoupon(
+    @Req() req: any,
+    @Body() dto: ApplyCouponDto,
+  ) {
+    return this.service.applyCoupon(
+      req.user.sub,
+      dto.code,
+    );
+  }
+
+  @Delete('remove-coupon')
+  removeCoupon(@Req() req: any) {
+    return this.service.removeCoupon(req.user.sub);
   }
 }

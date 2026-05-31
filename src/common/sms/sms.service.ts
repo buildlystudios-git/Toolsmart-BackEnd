@@ -24,6 +24,10 @@ export class SmsService {
 
   async sendSms(to: string, message: string) {
     try {
+      if(process.env.CB_SMS){
+        return;
+      }
+
       return await this.provider.sendSms(to, message);
     } catch (err) {
       console.log('Primary SMS failed, fallback to MSG91');

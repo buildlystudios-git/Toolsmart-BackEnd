@@ -14,6 +14,7 @@ import { ProductsModule } from './products/products.module';
 import { CartModule } from './carts/carts.module';
 import { OrdersModule } from './orders/orders.module';
 import { ApprovalsModule } from './approvals/approvals.module';
+import { CouponsModule } from './coupons/coupons.module';
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { ApprovalsModule } from './approvals/approvals.module';
     ProductsModule,
     CartModule,
     OrdersModule,
-    ApprovalsModule
+    ApprovalsModule,
+    CouponsModule
     ],
   controllers: [AppController],
   providers: [

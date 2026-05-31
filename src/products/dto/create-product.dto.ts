@@ -6,7 +6,7 @@ import {
   IsOptional,
   IsMongoId,
   IsArray,
-  IsBoolean,
+  IsBoolean
 } from 'class-validator';
 
 export class CreateProductDto {
