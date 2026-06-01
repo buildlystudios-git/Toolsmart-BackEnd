@@ -11,6 +11,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Product } from 'src/products/schemas/product.schema';
 import { ProductFilterDto } from 'src/products/dto/get-product-filter.dto';
 import { CategoryFilterDto } from './dto/get-category-filter.dto';
+import { CategoryProductFilterDto } from './dto/get-category-product.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -116,7 +117,7 @@ export class CategoriesService {
     return { message: 'Category deleted' };
   }
 
-  async getCategoryProducts(id: string) {
+  async getCategoryProducts(id: string, query: CategoryProductFilterDto) {
 
     const category = await this.categoryModel.findById(id);
 
@@ -124,6 +125,17 @@ export class CategoriesService {
       throw new NotFoundException('Category not found');
     }
     
-    return this.productModel.find({ categoryId: id }).sort({ order: 1 });
+    const sort: any = { order: 1 };
+
+    // if (sortBy) {
+    //   try {
+    //     const sortObj = JSON.parse(sortBy);
+    //     Object.assign(sort, sortObj);
+    //   } catch (error) {
+    //     throw new BadRequestException('Invalid sortBy format');
+    //   }
+    // }
+
+    return this.productModel.find({ categoryId: id }).sort(sort);
   }
 }

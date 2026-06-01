@@ -55,6 +55,13 @@ export class ProductFilterDto {
   )
   name?: string;
 
+  @ApiPropertyOptional({
+    description: '{ "order": -1, "discountedItems": 1 }',
+  })
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
+
   @ApiPropertyOptional()
   @IsOptional()
   @Type(() => Number)

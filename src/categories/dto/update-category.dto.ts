@@ -41,7 +41,7 @@ export class UpdateCategoryDto extends PartialType(CreateCategoryDto) {
   level?: number;
 
   @ApiPropertyOptional({
-    example: 5,
+    example: 1,
   })
   order?: number;
 
