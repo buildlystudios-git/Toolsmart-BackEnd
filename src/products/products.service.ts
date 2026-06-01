@@ -50,6 +50,7 @@ export class ProductsService {
       name,
       page = 1,
       limit = 10,
+      sortBy
     } = query;
 
     if(page < 1){
@@ -88,11 +89,22 @@ export class ProductsService {
       filter.brand = { $regex: brand, $options: 'i' };
     }
 
+    const sort: any = { order: 1 };
+
+    // if (sortBy) {
+    //   try {
+    //     const sortObj = JSON.parse(sortBy);
+    //     Object.assign(sort, sortObj);
+    //   } catch (error) {
+    //     throw new BadRequestException('Invalid sortBy format');
+    //   }
+    // }
+    
     const skip = (page - 1) * limit;
 
     const data = await this.productModel
       .find(filter)
-      .sort({ createdAt: -1 })
+      .sort(sort)
       .skip(skip)
       .limit(Number(limit));
 

@@ -15,6 +15,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { CategoryFilterDto } from './dto/get-category-filter.dto';
+import { CategoryProductFilterDto } from './dto/get-category-product.dto';
 
 @ApiTags('Categories')
 @ApiBearerAuth()
@@ -38,8 +39,8 @@ export class CategoriesController {
   }
 
   @Get(':id/products')
-  getCategoryProducts(@Param('id') id: string) {
-    return this.service.getCategoryProducts(id);
+  getCategoryProducts(@Param('id') id: string, @Query() query: CategoryProductFilterDto) {
+    return this.service.getCategoryProducts(id, query);
   }
 
   // Update Category

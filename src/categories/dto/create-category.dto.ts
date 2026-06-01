@@ -68,7 +68,7 @@ export class CreateCategoryDto {
   level?: number;
 
   @ApiPropertyOptional({
-    example: 10,
+    example: 1,
     description: 'Sorting order for UI',
   })
   @IsOptional()

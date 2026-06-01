@@ -7,6 +7,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Coupon } from './schemas/coupon.schema';
 import { CouponFilterDto } from './dto/get-coupon-filter.dto';
 import { Model, Types } from 'mongoose';
+import { CreateCouponDto } from './dto/create-coupon.dto';
+import { UpdateCouponDto } from './dto/update-coupon.dto';
 
 @Injectable()
 export class CouponsService {
@@ -16,12 +18,24 @@ export class CouponsService {
   ) {}
 
   // CREATE
-  async create(dto: any) {
+  async create(dto: CreateCouponDto) {
+    const coupon = await this.couponModel.findOne({ code: dto.code });
+
+    if (coupon) {
+      throw new BadRequestException('Coupon already exists');
+    }
+
     return this.couponModel.create(dto);
   }
 
   //  UPDATE
-  async update(id: string, dto: any) {
+  async update(id: string, dto: UpdateCouponDto) {
+    const existingCoupon = await this.couponModel.findOne({ code: dto.code });
+
+    if (existingCoupon && existingCoupon._id.toString() == id) {
+      throw new BadRequestException('Coupon already exists');
+    }
+
     const coupon = await this.couponModel.findByIdAndUpdate(
       id,
       dto,
