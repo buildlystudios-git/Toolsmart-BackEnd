@@ -11,6 +11,18 @@ async function bootstrap() {
     whitelist: true, // optional but recommended
   }));
 
+  const allowedOrigins = JSON.parse(process.env.ALLOW_ORIGIN || '[]');
+
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('CORS blocked'));
+    },
+    credentials: true,
+  });
+
 
   const config = new DocumentBuilder()
     .setTitle('Toolzkart API')
@@ -22,6 +34,6 @@ async function bootstrap() {
   const doc = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, doc);
 
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 4000);
 }
 bootstrap();
