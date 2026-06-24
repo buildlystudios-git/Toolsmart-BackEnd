@@ -9,12 +9,15 @@ import { Model, Types } from 'mongoose';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductFilterDto } from './dto/get-product-filter.dto';
+import { S3Service } from 'src/utils/s3.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel(Product.name)
     private productModel: Model<Product>,
+
+    private readonly s3Service: S3Service,
   ) {}
 
   // Create
@@ -34,9 +37,15 @@ export class ProductsService {
         throw new BadRequestException('Invalid category Id');
       }
     }
-
     
-    return this.productModel.create(product);
+    let productDoc = await this.productModel.create(product);
+
+    if (product.images && product.images.length > 0) {
+      const uploaded = await this.s3Service.uploadMultipleBase64(product.images, `product-${productDoc._id}`);
+      productDoc.images = await uploaded.map(img => img.url);
+      productDoc = await productDoc.save();
+    }
+    return productDoc;
   }
 
   // Find All (filters + pagination)
@@ -139,6 +148,12 @@ export class ProductsService {
     if (existingProduct2) {
       throw new BadRequestException('Product with the same name already exists');
     }
+
+    if (dto.images && dto.images.length > 0) {
+      const uploaded = await this.s3Service.uploadMultipleBase64(dto.images, `product-${existingProduct1._id}`);
+      dto.images = uploaded.map(img => img.url);
+    }
+
     const product = await this.productModel.findByIdAndUpdate(
       id,
       dto,

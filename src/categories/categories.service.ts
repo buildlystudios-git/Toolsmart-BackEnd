@@ -12,6 +12,7 @@ import { Product } from 'src/products/schemas/product.schema';
 import { ProductFilterDto } from 'src/products/dto/get-product-filter.dto';
 import { CategoryFilterDto } from './dto/get-category-filter.dto';
 import { CategoryProductFilterDto } from './dto/get-category-product.dto';
+import { S3Service } from 'src/utils/s3.service';
 
 @Injectable()
 export class CategoriesService {
@@ -20,7 +21,9 @@ export class CategoriesService {
     private categoryModel: Model<Category>,
 
     @InjectModel(Product.name)
-    private productModel: Model<Product>
+    private productModel: Model<Product>,
+
+    private readonly s3Service: S3Service,
   ) {}
 
   // Create
@@ -37,7 +40,15 @@ export class CategoriesService {
       throw new BadRequestException('Category with the same name already exists');
     }
 
-    return this.categoryModel.create(dto);
+    let category = await this.categoryModel.create(dto);
+
+    if (dto.image) {
+      const uploaded = await this.s3Service.uploadBase64(dto.image, `category-${category._id}`);
+      category.image = uploaded.url;
+      category = await category.save();
+    }
+
+    return category;
   }
 
   // Get all 
@@ -93,6 +104,11 @@ export class CategoriesService {
     const existingCategory = await this.categoryModel.findOne({ name: dto.name });
     if (existingCategory) {
       throw new BadRequestException('Category with the same name already exists');
+    }
+
+    if (dto.image) {
+      const uploaded = await this.s3Service.uploadBase64(dto.image, `category-${category._id}`);
+      dto.image = uploaded.url;
     }
 
     const updatedCategory = await this.categoryModel.findByIdAndUpdate(

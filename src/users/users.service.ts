@@ -4,13 +4,17 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './user.schema';
+import { S3Service } from 'src/utils/s3.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name)
-    private readonly userModel: Model<User>
+    private readonly userModel: Model<User>,
+
+    private readonly s3Service: S3Service,
   ) {}
 
   // CREATE USER
@@ -53,8 +57,13 @@ export class UsersService {
   // UPDATE USER
   async updateUser(
     userId: string,
-    updateData: Partial<User>
+    updateData: UpdateUserDto
   ): Promise<User> {
+
+    if (updateData.profileImage) {
+      const uploaded = await this.s3Service.uploadBase64(updateData.profileImage, `user-${userId}`);
+      updateData.profileImage = uploaded.url;
+    }
     const updated = await this.userModel.findByIdAndUpdate(
       userId,
       updateData,
