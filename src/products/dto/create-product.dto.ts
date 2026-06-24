@@ -23,6 +23,11 @@ export class CreateProductDto {
   @IsString()
   description?: string;
 
+  @ApiPropertyOptional({ example: 'Detailed information' })
+  @IsOptional()
+  @IsString()
+  about?: string;
+
   @ApiPropertyOptional({ example: 'Makita' })
   @IsOptional()
   @IsString()

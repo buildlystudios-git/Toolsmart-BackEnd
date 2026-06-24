@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsMongoId, ValidateNested, IsNumber, Min  } from 'class-validator';
+import { IsArray, IsMongoId, ValidateNested, IsNumber, Min, IsEnum  } from 'class-validator';
 import { Type } from 'class-transformer';
+import { DeliveryType } from '../enums/delivery-type.enum';
 
 export class OrderItemDto {
   @ApiProperty({ example: '665f1a2b3c4d5e6f7a8b9c0d' })
@@ -26,5 +27,9 @@ export class CreateOrderDto {
   @ValidateNested({ each: true })
   @Type(() => OrderItemDto)
   items!: OrderItemDto[];
+
+  @ApiProperty({ enum: DeliveryType, default: DeliveryType.SELF_PICKUP })
+  @IsEnum(DeliveryType)
+  deliveryType!: DeliveryType;
   
 }

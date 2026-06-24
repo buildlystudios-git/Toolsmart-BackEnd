@@ -36,7 +36,7 @@ export class Approval {
 
 export const ApprovalSchema = SchemaFactory.createForClass(Approval);
 
-// 🔥 Indexes
+//   Indexes
 ApprovalSchema.index({ userId: 1 });
 ApprovalSchema.index({ status: 1 });
 ApprovalSchema.index({ createdAt: -1 });

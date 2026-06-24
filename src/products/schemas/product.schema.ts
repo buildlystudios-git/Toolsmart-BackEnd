@@ -11,6 +11,9 @@ export class Product {
     description?: string;
 
     @Prop()
+    about?: string;
+
+    @Prop()
     brand?: string;
 
     @Prop()
@@ -41,7 +44,8 @@ export class Product {
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
 
-// 🔥 Indexes
+//   Indexes
 ProductSchema.index({ categoryId: 1 });
+ProductSchema.index({ categoryId: 1, name: 1 });
 ProductSchema.index({ price: 1 });
 ProductSchema.index({ createdAt: -1 });

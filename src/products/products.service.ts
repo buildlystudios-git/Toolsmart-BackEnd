@@ -23,9 +23,10 @@ export class ProductsService {
   // Create
   async create(dto: CreateProductDto) {
 
-    const existingProduct = await this.productModel.findOne({ name: dto.name });
+    const categoryId = dto.categoryId ? new Types.ObjectId(dto.categoryId) : null;
+    const existingProduct = await this.productModel.findOne({ name: dto.name, categoryId });
     if (existingProduct) {
-      throw new BadRequestException('Product with the same name already exists');
+      throw new BadRequestException('Product with the same name already exists in category');
     }
 
     const product = {...dto};
@@ -144,9 +145,10 @@ export class ProductsService {
     const existingProduct1 = await this.productModel.findById(id);
     if (!existingProduct1) throw new NotFoundException('Product not found');
 
-    const existingProduct2 = await this.productModel.findOne({ name: dto.name });
+    const categoryId = dto.categoryId ? new Types.ObjectId(dto.categoryId) : null;
+    const existingProduct2 = await this.productModel.findOne({ name: dto.name, categoryId });
     if (existingProduct2) {
-      throw new BadRequestException('Product with the same name already exists');
+      throw new BadRequestException('Product with the same name already exists in category');
     }
 
     if (dto.images && dto.images.length > 0) {

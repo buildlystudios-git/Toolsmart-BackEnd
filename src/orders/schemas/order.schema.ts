@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
+import { DeliveryType } from '../enums/delivery-type.enum';
 
 @Schema({ _id: false })
 class OrderItem {
@@ -33,6 +34,13 @@ export class Order {
   @Prop({ default: null })
   trackingId?: string;
 
+  @Prop({
+    type: String,
+    enum: DeliveryType,
+    default: DeliveryType.SELF_PICKUP,
+  })
+  deliveryType!: DeliveryType;
+
   @Prop({ default: false })
   isCancelled?: boolean;
 }
@@ -42,4 +50,5 @@ export const OrderSchema = SchemaFactory.createForClass(Order);
 // Indexes
 OrderSchema.index({ userId: 1 });
 OrderSchema.index({ status: 1 });
+OrderSchema.index({ deliveryType: 1 });
 OrderSchema.index({ createdAt: -1 });

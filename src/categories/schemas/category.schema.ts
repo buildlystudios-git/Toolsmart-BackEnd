@@ -50,7 +50,7 @@ CategorySchema.index({ isDeleted: 1, isActive: 1 });
 CategorySchema.index({ name: 1, parentId: 1 }, { unique: true });
 
 CategorySchema.index({ parentId: 1 });
-// 🔥 Timestamp index (optional but useful)
+//   Timestamp index (optional but useful)
 CategorySchema.index({ createdAt: -1 });
 
 
