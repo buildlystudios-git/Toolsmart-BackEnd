@@ -1,20 +1,103 @@
 {
-  "family": "nestjs-app",
+  "family": "toolsmart-backend",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",
   "memory": "1024",
-  "executionRoleArn": "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::931932531235:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
-      "name": "nestjs-app",
-      "image": "123456789012.dkr.ecr.ap-south-1.amazonaws.com/nestjs-app:{IMAGE_TAG}",
+      "name": "toolsmart-backend",
+      "image": "IMAGE_PLACEHOLDER",
       "essential": true,
       "portMappings": [
         {
-          "containerPort": 4000
+          "containerPort": 4000,
+          "protocol": "tcp"
         }
-      ]
+      ],
+      "environment": [
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        },
+        {
+          "name": "PORT",
+          "value": "4000"
+        },
+        {
+          "name": "MONGO_URI",
+          "value": "mongodb://mongodb:27017/toolzkart"
+        },
+        {
+          "name": "JWT_SECRET",
+          "value": "toolzkart_secret"
+        },
+        {
+          "name": "JWT_ISSUER",
+          "value": "toolzkart-api"
+        },
+        {
+          "name": "JWT_AUDIENCE",
+          "value": "toolzkart-users"
+        },
+        {
+          "name": "ALLOW_ORIGIN",
+          "value": "[\"http://localhost:3000\", \"http://localhost:4000\"]"
+        },
+        {
+          "name": "CB_SMS",
+          "value": "true"
+        },
+        {
+          "name": "SMS_PROVIDER",
+          "value": "GUPSHUP"
+        },
+        {
+          "name": "MSG91_AUTH_KEY",
+          "value": "your_key"
+        },
+        {
+          "name": "MSG91_FLOW_ID",
+          "value": "your_flow_id"
+        },
+        {
+          "name": "MSG91_SENDER_ID",
+          "value": "TOOLZK"
+        },
+        {
+          "name": "GUPSHUP_API_KEY",
+          "value": "your_gupshup_api_key"
+        },
+        {
+          "name": "GUPSHUP_PHONE_NUMBER",
+          "value": "your_whatsapp_number"
+        },
+        {
+          "name": "AWS_REGION",
+          "value": "ap-south-1"
+        },
+        {
+          "name": "AWS_ACCESS_KEY",
+          "value": "your_access_key"
+        },
+        {
+          "name": "AWS_SECRET_KEY",
+          "value": "your_secret_key"
+        },
+        {
+          "name": "AWS_BUCKET",
+          "value": "your_bucket"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/toolsmart-backend",
+          "awslogs-region": "ap-south-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
     }
   ]
 }
