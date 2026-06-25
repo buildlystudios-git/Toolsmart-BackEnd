@@ -30,8 +30,8 @@ export class SmsService {
 
       return await this.provider.sendSms(to, message);
     } catch (err) {
-      console.log('Primary SMS failed, fallback to MSG91');
-      return this.msg91.sendSms(to, message);
+      console.log('Primary SMS failed, fallback to Gupshup');
+      return this.gupshup.sendSms(to, message);
     }
   }
 }

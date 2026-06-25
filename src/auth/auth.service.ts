@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 
 import { UsersService } from '../users/users.service';
-import { RedisService } from '../common/redis/redis.service';
+import { CacheService } from '../common/cache/cache.service';
 import { SmsService } from '../common/sms/sms.service';
 import { PhoneNumberDto } from './dto/phonenumber.dto';
 
@@ -18,7 +18,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwt: JwtService,
-    private redisService: RedisService,
+    private cacheService: CacheService,
     private smsService: SmsService,
   ) {}
 
@@ -82,7 +82,7 @@ export class AuthService {
     const key = `otp:count:${phoneNumber}`;
 
     // Increment count (5 min window)
-    const count = await this.redisService.increment(key, 300);
+    const count = await this.cacheService.increment(key, 300);
 
     // Limit reached
     if (count > 3) {
@@ -98,7 +98,7 @@ export class AuthService {
       `Your OTP is ${otp}`
     );
 
-    await this.redisService.set(`otp:${phoneNumber}`, otp, 300);
+    await this.cacheService.set(`otp:${phoneNumber}`, otp, 300);
 
     console.log(`OTP for ${phoneNumber}: ${otp}`);
 
@@ -112,7 +112,7 @@ export class AuthService {
   async verifyOtp(phoneNumber: string, otp: string) {
     const key = `otp:verify:${phoneNumber}`;
 
-    const attempts = await this.redisService.increment(key, 300);
+    const attempts = await this.cacheService.increment(key, 300);
 
     if (attempts > 3) {
       throw new BadRequestException(
@@ -120,15 +120,15 @@ export class AuthService {
       );
     }
 
-    const storedOtp = await this.redisService.get(`otp:${phoneNumber}`);
+    const storedOtp = await this.cacheService.get(`otp:${phoneNumber}`);
 
     if (!storedOtp || storedOtp !== otp) {
       throw new UnauthorizedException('Invalid OTP');
     }
 
     // success → reset attempts
-    await this.redisService.del(key);
-    await this.redisService.del(`otp:${phoneNumber}`);
+    await this.cacheService.del(key);
+    await this.cacheService.del(`otp:${phoneNumber}`);
 
     let user = await this.usersService.findByPhone(phoneNumber);
 
