@@ -20,7 +20,8 @@ import { WishlistModule } from './wishlist/wishlist.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
     }),
     MongooseModule.forRoot(process.env.MONGO_URI as string),
 

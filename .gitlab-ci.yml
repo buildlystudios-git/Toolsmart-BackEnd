@@ -1,0 +1,96 @@
+stages:
+
+* build
+* publish
+* deploy
+
+variables:
+AWS_REGION: ap-south-1
+ECR_REPOSITORY: nestjs-app
+IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+
+# ==================================================
+
+# BUILD
+
+# ==================================================
+
+build-image:
+stage: build
+image: docker:27
+
+services:
+- docker:27-dind
+
+variables:
+DOCKER_TLS_CERTDIR: "/certs"
+
+script:
+- docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+- docker save $ECR_REPOSITORY:$IMAGE_TAG -o image.tar
+
+artifacts:
+paths:
+- image.tar
+expire_in: 1 day
+
+when: manual
+
+# ==================================================
+
+# PUBLISH
+
+# ==================================================
+
+publish-image:
+stage: publish
+
+image:
+name: amazon/aws-cli:latest
+entrypoint: [""]
+
+services:
+- docker:27-dind
+
+variables:
+DOCKER_HOST: tcp://docker:2375
+DOCKER_TLS_CERTDIR: ""
+
+dependencies:
+- build-image
+
+script:
+- docker load -i image.tar
+
+```
+- aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+- docker tag $ECR_REPOSITORY:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+
+- docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+```
+
+when: manual
+
+# ==================================================
+
+# DEPLOY
+
+# ==================================================
+
+deploy-ecs:
+stage: deploy
+
+image:
+name: amazon/aws-cli:latest
+entrypoint: [""]
+
+script:
+- |
+aws ecs update-service 
+--cluster $ECS_CLUSTER 
+--service $ECS_SERVICE 
+--force-new-deployment 
+--region $AWS_REGION
+
+when: manual
