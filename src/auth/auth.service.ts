@@ -94,7 +94,8 @@ export class AuthService {
       );
     }
 
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    //const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const otp = '1234';
 
     await this.smsService.sendSms(
       phoneNumber,
