@@ -69,19 +69,19 @@
       "secrets": [
         {
           "name": "MONGO_URI",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:MONGO_URI::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:toolsmart/backend:MONGO_URI::"
         },
         {
           "name": "JWT_SECRET",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:JWT_SECRET::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:toolsmart/backend:JWT_SECRET::"
         },
         {
           "name": "JWT_ISSUER",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:JWT_ISSUER::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:toolsmart/backend:JWT_ISSUER::"
         },
         {
           "name": "JWT_AUDIENCE",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:JWT_AUDIENCE::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:toolsmart/backend:JWT_AUDIENCE::"
         }
       ],
       "logConfiguration": {
