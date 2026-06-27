@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuid } from 'uuid';
@@ -9,6 +10,7 @@ import { v4 as uuid } from 'uuid';
 @Injectable()
 export class S3Service {
   private s3: S3Client;
+  private readonly logger = new Logger(S3Service.name);
 
   constructor() {
     this.s3 = new S3Client({
@@ -51,13 +53,14 @@ export class S3Service {
 
       await this.s3.send(command);
 
-      console.log(`Image uploaded to S3: ${key}`);
+      this.logger.log(`Image uploaded to S3: ${key}`);
       return {
         key,
         url: `https://${process.env.AWS_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`,
       };
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
+      this.logger.error('S3 upload failed', JSON.stringify(error), S3Service.name);
       throw new InternalServerErrorException('S3 upload failed');
     }
   }

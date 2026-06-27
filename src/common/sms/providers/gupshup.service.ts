@@ -1,12 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { SmsProvider } from '../interfaces/sms.interface';
 import axios from 'axios';
 
 @Injectable()
 export class GupshupService implements SmsProvider {
+  private readonly logger = new Logger(GupshupService.name);
+
   async sendSms(to: string, message: string) {
 
-    console.log('Sending via Gupshup:', to, message);
+    this.logger.log(`Sending via Gupshup: ${to} ${message}`);
     const url = 'https://api.gupshup.io/sm/api/v1/msg';
     
     
@@ -32,7 +34,7 @@ export class GupshupService implements SmsProvider {
         );
       return response.data;
     } catch (error) {
-      console.error('Error sending SMS via Gupshup:', error);
+      this.logger.error('Error sending SMS via Gupshup', JSON.stringify(error), GupshupService.name);
       throw new Error('Failed to send SMS');
     }
   }

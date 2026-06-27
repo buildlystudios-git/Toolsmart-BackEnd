@@ -2,7 +2,8 @@ import {
   Injectable,
   UnauthorizedException,
   NotFoundException,
-  BadRequestException
+  BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -15,6 +16,8 @@ import { PhoneNumberDto } from './dto/phonenumber.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private usersService: UsersService,
     private jwt: JwtService,
@@ -100,7 +103,7 @@ export class AuthService {
 
     await this.cacheService.set(`otp:${phoneNumber}`, otp, 300);
 
-    console.log(`OTP for ${phoneNumber}: ${otp}`);
+    this.logger.log(`OTP for ${phoneNumber}: ${otp}`);
 
     return {
       message: 'OTP sent successfully',
@@ -148,7 +151,6 @@ export class AuthService {
 
   // GENERATE TOKENS
   private async generateTokens(user: any) {
-    console.log('JWT_SECRET:', process.env.JWT_SECRET);
     const payload = {
       sub: user._id,
       email: user.email,

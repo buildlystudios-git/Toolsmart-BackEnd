@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Msg91Service } from './providers/msg91.service';
 import { GupshupService } from './providers/gupshup.service';
@@ -7,6 +7,7 @@ import { SmsProvider } from './interfaces/sms.interface';
 @Injectable()
 export class SmsService {
   private provider: SmsProvider;
+  private readonly logger = new Logger(SmsService.name);
 
   constructor(
     private config: ConfigService,
@@ -30,7 +31,7 @@ export class SmsService {
 
       return await this.provider.sendSms(to, message);
     } catch (err) {
-      console.log('Primary SMS failed, fallback to Gupshup');
+      this.logger.warn('Primary SMS failed, fallback to Gupshup', err as string);
       return this.gupshup.sendSms(to, message);
     }
   }

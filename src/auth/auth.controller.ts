@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Logger } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 
 import { AuthService } from './auth.service';
@@ -15,6 +15,8 @@ import { RefreshTokenGuard } from './guards/jwt-auth.guard/refresh-token.guard';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private authService: AuthService) {}
 
   // Register
@@ -46,7 +48,7 @@ export class AuthController {
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   logout(@Req() req) {
-    console.log('User:', req.user);
+    this.logger.debug(`User: ${JSON.stringify(req.user)}`);
     return this.authService.logout(req.user.sub);
   }
 
