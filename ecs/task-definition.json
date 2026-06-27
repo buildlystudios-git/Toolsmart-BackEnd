@@ -43,7 +43,7 @@
         },
         {
           "name": "ALLOW_ORIGIN",
-          "value": ["http://localhost:3000", "http://localhost:4000"]
+          "value": "[\"http://localhost:3000\",\"http://localhost:4000\"]"
         },
         {
           "name": "MSG91_AUTH_KEY",
