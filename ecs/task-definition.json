@@ -26,68 +26,62 @@
           "value": "4000"
         },
         {
-          "name": "MONGO_URI",
-          "value": "mongodb://mongodb:27017/toolzkart"
+          "name": "AWS_REGION",
+          "value": "ap-south-1"
         },
         {
-          "name": "JWT_SECRET",
-          "value": "toolzkart_secret"
-        },
-        {
-          "name": "JWT_ISSUER",
-          "value": "toolzkart-api"
-        },
-        {
-          "name": "JWT_AUDIENCE",
-          "value": "toolzkart-users"
-        },
-        {
-          "name": "ALLOW_ORIGIN",
-          "value": "[\"http://localhost:3000\", \"http://localhost:4000\"]"
-        },
-        {
-          "name": "CB_SMS",
-          "value": "true"
+          "name": "AWS_BUCKET",
+          "value": "toolsmart"
         },
         {
           "name": "SMS_PROVIDER",
           "value": "GUPSHUP"
         },
         {
+          "name": "CB_SMS",
+          "value": "true"
+        },
+        {
+          "name": "ALLOW_ORIGIN",
+          "value": "ALLOW_ORIGIN"
+        },
+        {
           "name": "MSG91_AUTH_KEY",
-          "value": "your_key"
+          "value": "MSG91_AUTH_KEY"
         },
         {
           "name": "MSG91_FLOW_ID",
-          "value": "your_flow_id"
+          "value": "MSG91_FLOW_ID"
         },
         {
           "name": "MSG91_SENDER_ID",
-          "value": "TOOLZK"
+          "value": "MSG91_SENDER_ID"
         },
         {
           "name": "GUPSHUP_API_KEY",
-          "value": "your_gupshup_api_key"
+          "value": "GUPSHUP_API_KEY"
         },
         {
           "name": "GUPSHUP_PHONE_NUMBER",
-          "value": "your_whatsapp_number"
+          "value": "GUPSHUP_PHONE_NUMBER"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "MONGO_URI",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:MONGO_URI::"
         },
         {
-          "name": "AWS_REGION",
-          "value": "ap-south-1"
+          "name": "JWT_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:JWT_SECRET::"
         },
         {
-          "name": "AWS_ACCESS_KEY",
-          "value": "your_access_key"
+          "name": "JWT_ISSUER",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:JWT_ISSUER::"
         },
         {
-          "name": "AWS_SECRET_KEY",
-          "value": "your_secret_key"
-        },
-        {
-          "name": "AWS_BUCKET",
-          "value": "your_bucket"
+          "name": "JWT_AUDIENCE",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:JWT_AUDIENCE::"
         }
       ],
       "logConfiguration": {
@@ -95,7 +89,8 @@
         "options": {
           "awslogs-group": "/ecs/toolsmart-backend",
           "awslogs-region": "ap-south-1",
-          "awslogs-stream-prefix": "ecs"
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
         }
       }
     }
