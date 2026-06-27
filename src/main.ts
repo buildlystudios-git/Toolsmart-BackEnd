@@ -13,15 +13,18 @@ async function bootstrap() {
 
   const allowedOrigins = JSON.parse(process.env.ALLOW_ORIGIN || '[]');
 
-  app.enableCors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error('CORS blocked'));
-    },
-    credentials: true,
-  });
+  // app.enableCors({
+  //   origin: (origin, callback) => {
+  //     if (!origin || allowedOrigins.includes(origin)) {
+  //       return callback(null, true);
+  //     }
+  //     return callback(new Error('CORS blocked'));
+  //   },
+  //   credentials: true,
+  // });
+
+  //Allow all origins for development purposes
+  app.enableCors();
 
 
   const config = new DocumentBuilder()
