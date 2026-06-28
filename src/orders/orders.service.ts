@@ -6,6 +6,9 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Order } from './schemas/order.schema';
 import { Model, Types } from 'mongoose';
+import { OrderStatus } from './enums/order-status.enum';
+import { UpdateOrderStatusDto } from './dto/update-status.dto';
+import { GETOrderStatusDto } from './dto/get-order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -35,9 +38,17 @@ export class OrdersService {
   }
 
   //  GET /orders
-  async findAll(userId: string) {
+  async findAll( query: GETOrderStatusDto) {
+    const filter: any = { };
+    if (query.status) {
+      filter.status = query.status;
+    }
+    if(query.userId){ 
+      filter.userId = query.userId;
+    }
+    
     return this.orderModel
-      .find({ userId })
+      .find({ ...filter })
       .sort({ createdAt: -1 });
   }
 
@@ -54,16 +65,33 @@ export class OrdersService {
   }
 
   //  PATCH /orders/:id/status
-  async updateStatus(id: string, status: string) {
-    const order = await this.orderModel.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true },
-    );
+  async updateStatus(userId: string, id: string, dto: UpdateOrderStatusDto) {
+    const order = await this.orderModel.findOne({
+      _id: id
+    });
 
     if (!order) throw new NotFoundException('Order not found');
 
-    return order;
+    if (order.status == OrderStatus.SHIPPED || order.status == OrderStatus.DELIVERED) {
+      throw new BadRequestException(`Cannot cancel this order, it is already ${order.status?.toLowerCase()}`);
+    }
+
+    const { status, rejectionReason } = dto;
+    const updateData: any = { 
+      status,
+      statusUpdatedBy: new Types.ObjectId(userId),
+      statusUpdatedAt: new Date() 
+    };
+    if (status === OrderStatus.REJECTED) {
+      updateData['rejectionReason'] = rejectionReason;
+    }
+    const updatedOrder = await this.orderModel.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true },
+    );
+
+    return updatedOrder;
   }
 
   //  GET /orders/:id/tracking
@@ -76,24 +104,5 @@ export class OrdersService {
       status: order.status,
       trackingId: order.trackingId,
     };
-  }
-
-  //  POST /orders/:id/cancel
-  async cancelOrder(userId: string, id: string) {
-    const order = await this.orderModel.findOne({
-      _id: id,
-      userId,
-    });
-
-    if (!order) throw new NotFoundException('Order not found');
-
-    if (order.status === 'shipped' || order.status === 'delivered') {
-      throw new BadRequestException(`Cannot cancel this order, it is already ${order.status}`);
-    }
-
-    order.status = 'cancelled';
-    order.isCancelled = true;
-
-    return order.save();
   }
 }

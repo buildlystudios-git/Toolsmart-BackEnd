@@ -13,7 +13,6 @@ import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
 import { CartModule } from './carts/carts.module';
 import { OrdersModule } from './orders/orders.module';
-import { ApprovalsModule } from './approvals/approvals.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 
@@ -37,7 +36,6 @@ import { WishlistModule } from './wishlist/wishlist.module';
     ProductsModule,
     CartModule,
     OrdersModule,
-    ApprovalsModule,
     CouponsModule,
     WishlistModule
     ],

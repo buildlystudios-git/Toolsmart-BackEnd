@@ -24,7 +24,10 @@ export class CreateCouponDto {
   @IsNumber()
   maxDiscount?: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    example: '2026-12-31T23:59:59.000Z',
+    description: 'Expiry date in UTC (ISO 8601 format)',
+  })
   @IsOptional()
   expiryDate?: Date;
 }

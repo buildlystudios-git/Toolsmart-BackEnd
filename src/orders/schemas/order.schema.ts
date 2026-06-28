@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { DeliveryType } from '../enums/delivery-type.enum';
+import { OrderStatus } from '../enums/order-status.enum';
 
 @Schema({ _id: false })
 class OrderItem {
@@ -26,10 +27,26 @@ export class Order {
   totalAmount!: number;
 
   @Prop({
-    enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
-    default: 'pending',
+    type: String,
+    enum: OrderStatus,
+    default: OrderStatus.PENDING_APPROVAL,
   })
-  status!: string;
+  status!: OrderStatus;
+
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'User',
+    default: null,
+  })
+  statusUpdatedBy?: Types.ObjectId;
+
+  @Prop({
+    default: null,
+  })
+  statusUpdatedAt?: Date;
+
+  @Prop()
+  rejectionReason?: string;
 
   @Prop({ default: null })
   trackingId?: string;
@@ -40,9 +57,6 @@ export class Order {
     default: DeliveryType.SELF_PICKUP,
   })
   deliveryType!: DeliveryType;
-
-  @Prop({ default: false })
-  isCancelled?: boolean;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

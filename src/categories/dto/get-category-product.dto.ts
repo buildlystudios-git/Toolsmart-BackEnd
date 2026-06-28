@@ -7,6 +7,7 @@ import {
 export class CategoryProductFilterDto {
     
       @ApiPropertyOptional({
+        
         description: '{ "order": -1, "discountedItems": 1 }',
       })
       @IsOptional()

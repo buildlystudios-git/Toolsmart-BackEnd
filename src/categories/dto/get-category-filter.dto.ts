@@ -3,7 +3,7 @@ import { Transform } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
 
 export class CategoryFilterDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({example: "category-id"})
   @IsOptional()
   @IsString()
   @Transform(({ value }) =>
@@ -11,7 +11,7 @@ export class CategoryFilterDto {
   )
   id?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({example: "category-name"})
   @IsOptional()
   @IsString()
   @Transform(({ value }) =>

@@ -27,8 +27,8 @@ export class CreateOrderDto {
   @ValidateNested({ each: true })
   @Type(() => OrderItemDto)
   items!: OrderItemDto[];
-
-  @ApiProperty({ enum: DeliveryType, default: DeliveryType.SELF_PICKUP })
+ 
+  @ApiProperty({ example: DeliveryType.SELF_PICKUP, enum: DeliveryType, default: DeliveryType.SELF_PICKUP })
   @IsEnum(DeliveryType)
   deliveryType!: DeliveryType;
   

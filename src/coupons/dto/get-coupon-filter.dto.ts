@@ -3,7 +3,7 @@ import { Transform } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
 
 export class CouponFilterDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({example: 'coupon-id'})
   @IsOptional()
   @IsString()
   @Transform(({ value }) =>

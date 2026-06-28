@@ -9,7 +9,7 @@ import {
 
 export class ProductFilterDto {
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({example:"product-id"})
   @IsOptional()
   @IsString()
   @Transform(({ value }) =>
@@ -17,7 +17,7 @@ export class ProductFilterDto {
   )
   id?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({example:"brand-name"})
   @IsOptional()
   @IsString()
   @Transform(({ value }) =>
@@ -25,7 +25,7 @@ export class ProductFilterDto {
   )
   brand?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({example:"category-id"})
   @IsOptional()
   @IsString()
   @Transform(({ value }) =>
@@ -33,21 +33,21 @@ export class ProductFilterDto {
   )
   categoryId?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({example: 0})
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
   minPrice?: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({example: 1000})
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
   maxPrice?: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({example: "product-name"})
   @IsOptional()
   @IsString()
   @Transform(({ value }) =>
@@ -56,20 +56,27 @@ export class ProductFilterDto {
   name?: string;
 
   @ApiPropertyOptional({
+    example: '{ "order": -1, "discountedItems": 1 }',
     description: '{ "order": -1, "discountedItems": 1 }',
   })
   @IsOptional()
   @IsString()
   sortBy?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    example: 1,
+    description: 'Page number',
+  })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(1)
   page?: number = 1;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    example: 10,
+    description: 'Number of items per page',
+  })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
