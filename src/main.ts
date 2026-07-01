@@ -5,14 +5,17 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   app.useLogger(['log', 'error', 'warn', 'debug', 'verbose']);
 
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true, // REQUIRED
-    whitelist: true, // optional but recommended
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  );
 
-  const allowedOrigins = JSON.parse(process.env.ALLOW_ORIGIN || '[]');
+  //const allowedOrigins = JSON.parse(process.env.ALLOW_ORIGIN || '[]');
 
   // app.enableCors({
   //   origin: (origin, callback) => {
@@ -27,6 +30,8 @@ async function bootstrap() {
   //Allow all origins for development purposes
   app.enableCors();
 
+  // Global API prefix
+  app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()
     .setTitle('Toolzkart API')
@@ -35,8 +40,9 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
-  const doc = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, doc);
+  const document = SwaggerModule.createDocument(app, config);
+
+  SwaggerModule.setup('api/docs', app, document);
 
   await app.listen(process.env.PORT || 4000, '0.0.0.0');
 }
