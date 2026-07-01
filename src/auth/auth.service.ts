@@ -1,7 +1,6 @@
 import {
   Injectable,
   UnauthorizedException,
-  NotFoundException,
   BadRequestException,
   Logger,
 } from '@nestjs/common';
@@ -94,14 +93,15 @@ export class AuthService {
       );
     }
 
-    //const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    const otp = '1234';
-
-    await this.smsService.sendSms(
-      phoneNumber,
-      `Your OTP is ${otp}`
-    );
-
+    let otp;
+    if(process.env.CB_SMS == 'true'){
+      otp = '1234'; 
+    }
+    else{
+      otp = Math.floor(1000 + Math.random() * 9000).toString();
+      await this.smsService.sendSms(phoneNumber,`Your OTP is ${otp}`);
+    }
+    
     await this.cacheService.set(`otp:${phoneNumber}`, otp, 300);
 
     this.logger.log(`OTP for ${phoneNumber}: ${otp}`);

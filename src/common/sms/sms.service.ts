@@ -21,20 +21,16 @@ export class SmsService {
     if (provider === 'TWILIO') {
       this.provider = this.twilio;
     } else {
-      this.provider = this.msg91; // default
+      this.provider = this.gupshup; // default
     }
   }
 
   async sendSms(to: string, message: string) {
     try {
-      if(process.env.CB_SMS){
-        return;
-      }
-
       return await this.provider.sendSms(to, message);
     } catch (err) {
       this.logger.warn('Primary SMS failed, fallback to Gupshup', err as string);
-      return this.gupshup.sendSms(to, message);
+      throw err;
     }
   }
 }
