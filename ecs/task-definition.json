@@ -35,7 +35,7 @@
         },
         {
           "name": "SMS_PROVIDER",
-          "value": "GUPSHUP"
+          "value": "TWILIO"
         },
         {
           "name": "CB_SMS",
@@ -46,24 +46,16 @@
           "value": "[\"http://localhost:3000\",\"http://localhost:4000\"]"
         },
         {
-          "name": "MSG91_AUTH_KEY",
-          "value": "MSG91_AUTH_KEY"
+          "name": "TWILIO_ACCOUNT_SID",
+          "value": "TWILIO_ACCOUNT_SID"
         },
         {
-          "name": "MSG91_FLOW_ID",
-          "value": "MSG91_FLOW_ID"
+          "name": "TWILIO_AUTH_TOKEN",
+          "value": "TWILIO_AUTH_TOKEN"
         },
         {
-          "name": "MSG91_SENDER_ID",
-          "value": "MSG91_SENDER_ID"
-        },
-        {
-          "name": "GUPSHUP_API_KEY",
-          "value": "GUPSHUP_API_KEY"
-        },
-        {
-          "name": "GUPSHUP_PHONE_NUMBER",
-          "value": "GUPSHUP_PHONE_NUMBER"
+          "name": "TWILIO_PHONE_NUMBER",
+          "value": "TWILIO_PHONE_NUMBER"
         }
       ],
       "secrets": [
