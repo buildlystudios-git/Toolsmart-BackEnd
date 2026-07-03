@@ -23,10 +23,10 @@ import { CategoryProductFilterDto } from './dto/get-category-product.dto';
 @Controller('categories')
 @UseGuards(JwtAuthGuard)
 export class CategoriesController {
+  private readonly logger = new Logger(CategoriesController.name);
+
   constructor(
     private readonly service: CategoriesService,
-    private readonly logger = new Logger(CategoriesController.name)
-    
   ) {}
 
   // Create Category
