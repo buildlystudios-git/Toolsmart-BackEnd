@@ -101,11 +101,6 @@ export class CategoriesService {
       throw new NotFoundException('Category not found');
     }
 
-    const existingCategory = await this.categoryModel.findOne({ name: dto.name });
-    if (existingCategory) {
-      throw new BadRequestException('Category with the same name already exists');
-    }
-
     if (dto.image) {
       const uploaded = await this.s3Service.uploadBase64(dto.image, `category-${category._id}`);
       dto.image = uploaded.url;

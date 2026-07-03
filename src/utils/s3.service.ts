@@ -29,39 +29,50 @@ export class S3Service {
     base64: string,
     filename: string
   ): Promise<{ key: string; url: string }> {
+    const awsRegion = process.env.AWS_REGION?? 'ap-south-1';
+    const awsBucket = process.env.AWS_BUCKET?? 'toolsmart';
+
     try {
-      const matches = base64.match(/^data:(.+);base64,(.+)$/);
-
-      if (!matches) {
-        throw new BadRequestException('Invalid base64 format');
+      if(this.isS3ImageUploaded(base64) ){
+        this.logger.log(`Image already exists in S3: ${base64}`);
+        return {
+          key: base64,
+          url: base64,
+        };
       }
+      else{
+        const matches = base64.match(/^data:(.+);base64,(.+)$/);
 
-      const mimeType = matches[1];
-      const base64Data = matches[2];
+        if (!matches) {
+          throw new BadRequestException('Invalid base64 format');
+        }
 
-      const buffer = Buffer.from(base64Data, 'base64');
+        const mimeType = matches[1];
+        const base64Data = matches[2];
 
-      const extension = mimeType.split('/')[1];
-      const key = `img/${filename || uuid()}.${extension}`;
+        const buffer = Buffer.from(base64Data, 'base64');
 
-      const command = new PutObjectCommand({
-        Bucket: process.env.AWS_BUCKET,
-        Key: key,
-        Body: buffer,
-        ContentType: mimeType,
-      });
+        const extension = mimeType.split('/')[1];
+        const key = `img/${filename || uuid()}.${extension}`;
 
-      await this.s3.send(command);
+        const command = new PutObjectCommand({
+          Bucket: awsBucket,
+          Key: key,
+          Body: buffer,
+          ContentType: mimeType,
+        });
 
-      this.logger.log(`Image uploaded to S3: ${key}`);
-      return {
-        key,
-        url: `https://${process.env.AWS_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`,
-      };
-    } catch (error) {
-      if (error instanceof BadRequestException) throw error;
-      this.logger.error('S3 upload failed', JSON.stringify(error), S3Service.name);
-      throw new InternalServerErrorException('S3 upload failed');
+        await this.s3.send(command);
+
+        this.logger.log(`Image uploaded to S3: ${key}`);
+        return {
+          key,
+          url: `https://${awsBucket}.s3.${awsRegion}.amazonaws.com/${key}`,
+        };
+      }
+    } catch (error: unknown) {
+      this.logger.error(`S3 upload failed: ${String(error)}`);
+      throw error;
     }
   }
 
@@ -75,5 +86,25 @@ export class S3Service {
         );
 
         return Promise.all(uploadPromises);
+    }
+
+    isS3ImageUploaded(imageUrl: string) {
+      if (!imageUrl) return false;
+
+      try {
+        const url = new URL(imageUrl);
+
+        const bucket = process.env.AWS_BUCKET;
+        const region = process.env.AWS_REGION;
+
+        const expectedHost = `${bucket}.s3.${region}.amazonaws.com`;
+
+        return (
+          url.hostname === expectedHost &&
+          url.pathname.startsWith('/img/')
+        );
+      } catch {
+        return false;
+      }
     }
 }

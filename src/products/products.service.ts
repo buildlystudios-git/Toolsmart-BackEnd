@@ -23,12 +23,6 @@ export class ProductsService {
   // Create
   async create(dto: CreateProductDto) {
 
-    const categoryId = dto.categoryId ? new Types.ObjectId(dto.categoryId) : null;
-    const existingProduct = await this.productModel.findOne({ name: dto.name, categoryId });
-    if (existingProduct) {
-      throw new BadRequestException('Product with the same name already exists in category');
-    }
-
     const product = {...dto};
     if (dto.categoryId) {
       try {
@@ -144,12 +138,6 @@ export class ProductsService {
   async update(id: string, dto: UpdateProductDto) {
     const existingProduct1 = await this.productModel.findById(id);
     if (!existingProduct1) throw new NotFoundException('Product not found');
-
-    const categoryId = dto.categoryId ? new Types.ObjectId(dto.categoryId) : null;
-    const existingProduct2 = await this.productModel.findOne({ name: dto.name, categoryId });
-    if (existingProduct2) {
-      throw new BadRequestException('Product with the same name already exists in category');
-    }
 
     if (dto.images && dto.images.length > 0) {
       const uploaded = await this.s3Service.uploadMultipleBase64(dto.images, `product-${existingProduct1._id}`);
