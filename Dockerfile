@@ -40,6 +40,9 @@ RUN npm ci --omit=dev \
 # Copy built application
 COPY --from=builder /app/dist ./dist
 
+# Copy script files
+COPY --from=builder /app/src/scripts ./src/scripts
+
 # Create non-root user
 RUN addgroup -S nestjs \
     && adduser -S nestjs -G nestjs
