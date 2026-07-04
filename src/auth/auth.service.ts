@@ -12,6 +12,7 @@ import { UsersService } from '../users/users.service';
 import { CacheService } from '../common/cache/cache.service';
 import { SmsService } from '../common/sms/sms.service';
 import { PhoneNumberDto } from './dto/phonenumber.dto';
+import { AdminLoginDto } from './dto/admin-login.dto';
 
 @Injectable()
 export class AuthService {
@@ -195,5 +196,22 @@ export class AuthService {
       accessToken,
       refreshToken
     };
+  }
+
+  async adminLogin(dto: AdminLoginDto) {
+    const user = await this.usersService.findByEmail(dto.email);
+
+    if (!user || user.role !== 'admin') {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    //@ts-ignore
+    const isMatch = await bcrypt.compare(dto.password, user.password);
+
+    if (!isMatch) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    return this.generateTokens(user);
   }
 }

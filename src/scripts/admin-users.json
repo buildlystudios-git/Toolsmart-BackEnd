@@ -1,0 +1,10 @@
+[
+    {
+    "email": "toolsmart7@gmail.com",
+    "password": "toolsmart7@123",
+    "isEmailVerified": true,
+    "phoneNumber": "8091768971",
+    "isPhoneNumberVerified": true,
+    "role": "admin"
+    }
+]

@@ -32,21 +32,19 @@ export class CategoriesController {
   // Create Category
   @Post()
   create(@Body() dto: CreateCategoryDto) {
-    this.logger.log(`log==========Creating category with name: ${dto.name}`);
-    this.logger.debug(`debug==========Category DTO: ${JSON.stringify(dto)}`);
-    this.logger.error(`error==========Creating category with name: ${dto.name}`);
+    this.logger.log(`Creating category with name: ${dto.name}`);
     return this.service.create(dto);
   }
 
   @Get()
   findAll(@Query() query: CategoryFilterDto) {
-    this.logger.log(`Finding all categories`);
+    this.logger.log(`Finding all categories with filters: ${JSON.stringify(query)}`);
     return this.service.findAll(query);
   }
 
   @Get(':id/products')
   getCategoryProducts(@Param('id') id: string, @Query() query: CategoryProductFilterDto) {
-    this.logger.log(`Fetching products for category with ID: ${id}`);
+    this.logger.log(`Fetching products for category with ID: ${id} and filters: ${JSON.stringify(query)}`);
     return this.service.getCategoryProducts(id, query);
   }
 

@@ -19,6 +19,9 @@ export class User {
   @Prop({ required: false })
   fullName?: string;
 
+  @Prop({ required: false })
+  password?: string;
+
   @Prop({ type: String, required: false })
   refreshTokenHash?: string | null;
 

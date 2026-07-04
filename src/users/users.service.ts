@@ -1,21 +1,36 @@
 import {
   Injectable,
-  NotFoundException
+  Logger,
+  NotFoundException,
+  OnApplicationBootstrap
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './user.schema';
 import { S3Service } from 'src/utils/s3.service';
+import * as bcrypt from 'bcrypt';
+import * as path from 'node:path';
+import { readFile } from 'node:fs/promises';
+
 
 @Injectable()
-export class UsersService {
+export class UsersService implements OnApplicationBootstrap{
+
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
 
     private readonly s3Service: S3Service,
   ) {}
+
+  async onApplicationBootstrap() {
+    this.logger.log('Application bootstrapped...');
+    await this.loadUserScripts();
+
+  }
 
   // CREATE USER
   async create(data: Partial<User>): Promise<User> {
@@ -103,5 +118,39 @@ export class UsersService {
     }
 
     return updated;
-  } 
+  }
+
+  async loadUserScripts() {
+
+    try {
+      const filePath = path.resolve(process.cwd(), 'src', 'scripts', 'admin-users.json');
+      const fileContents = await readFile(filePath, 'utf-8');
+
+      const adminUsers = JSON.parse(fileContents);
+
+      const newUsers = [];
+      for (const adminUser of adminUsers) {
+        const existing = await this.findByEmail(adminUser.email);
+        if (!existing) {
+          const createDto: any = {
+            ...adminUser,
+            role: 'admin',
+            isEmailVerified: true,
+            isPhoneNumberVerified: true,
+            password: await bcrypt.hash(adminUser.password, 10)
+          };
+
+          //@ts-ignore
+          newUsers.push(createDto);
+
+          
+        }
+      }
+      await this.userModel.insertMany(newUsers);
+      this.logger.log(`Admin users loaded: ${newUsers.length}`);
+    } catch (error) {
+      this.logger.error('Failed to load admin-users.json', error);
+      throw new Error('Unable to load admin users');
+    }
+  }
 }

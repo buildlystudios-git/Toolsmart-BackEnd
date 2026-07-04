@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req, Logger } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Logger, Query } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 
 import { AuthService } from './auth.service';
@@ -12,6 +12,7 @@ import { RolesGuard } from './guards/roles.guard/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { Auth } from './decorators/auth.decorator';
 import { RefreshTokenGuard } from './guards/jwt-auth.guard/refresh-token.guard';
+import { AdminLoginDto } from './dto/admin-login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -29,9 +30,16 @@ export class AuthController {
 
   // Login
   //@ts-ignore 
-  @Throttle({ limit: 5, ttl: 60 })
+  @Post('admilogin')
+  adminLogin(@Body() dto: AdminLoginDto) {
+    this.logger.log(`Admin login attempt for email: ${dto.email}`);
+    return this.authService.adminLogin(dto);
+  }
+
+  // User Login
   @Post('login')
   login(@Body() dto: PhoneNumberDto) {
+    this.logger.log(`User login attempt for phone number: ${dto.phoneNumber}`);
     return this.authService.login(dto);
   }
 

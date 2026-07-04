@@ -71,6 +71,7 @@ export class S3Service {
         };
       }
     } catch (error: unknown) {
+      
       this.logger.error(`S3 upload failed: ${String(error)}`);
       throw error;
     }
