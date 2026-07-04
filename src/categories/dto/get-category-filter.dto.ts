@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { IsOptional, IsString } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class CategoryFilterDto {
   @ApiPropertyOptional({example: "category-id"})
@@ -18,4 +18,22 @@ export class CategoryFilterDto {
     typeof value === 'string' ? value.trim() : value,
   )
   name?: string;
+
+  @ApiPropertyOptional({
+      example: 1,
+      description: 'level',
+    })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  level?: number = 1;
+
+  @ApiPropertyOptional({
+    example: '{ "name": 1 }',
+    description: '{ "name": 1 }',
+  })
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
 }

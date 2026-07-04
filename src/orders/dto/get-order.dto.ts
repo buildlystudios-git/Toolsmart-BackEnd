@@ -17,4 +17,12 @@ export class GETOrderStatusDto {
     typeof value === 'string' ? value.trim() : value,
   )
   userId?: string;
+
+  @ApiPropertyOptional({example: "true/false"})
+  @IsOptional()
+  @IsString()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  'active-order'?: string;
 }

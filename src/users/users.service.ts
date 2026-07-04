@@ -12,6 +12,7 @@ import { S3Service } from 'src/utils/s3.service';
 import * as bcrypt from 'bcrypt';
 import * as path from 'node:path';
 import { readFile } from 'node:fs/promises';
+import { UserFilterDto } from './dto/get-user-filter.dto';
 
 
 @Injectable()
@@ -102,8 +103,29 @@ export class UsersService implements OnApplicationBootstrap{
   }
 
   // GET ALL USERS (Admin)
-  async findAll(): Promise<User[]> {
-    return await this.userModel.find().exec();
+  async findAll(query: UserFilterDto): Promise<{ data: User[], total: number }> {
+    const { search, isDeleted, sortBy } = query;
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+
+    let filter: any = {};
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { phoneNumber: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    if (isDeleted) {
+      filter.isDeleted = isDeleted === 'true';
+    }
+
+    const skip = (page - 1) * limit;
+    
+    const users = await this.userModel.find(filter).sort(sortBy).skip(skip).limit(limit).exec();
+    const total = await this.userModel.countDocuments(filter);
+    return { data: users, total };
   }
 
   async updatePhoneNumberVerification(phoneNumber: string, isVerified: boolean): Promise<User> {

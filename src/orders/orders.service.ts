@@ -40,9 +40,13 @@ export class OrdersService {
   //  GET /orders
   async findAll( query: GETOrderStatusDto) {
     const filter: any = { };
-    if (query.status) {
+    if(query['active-order']){ 
+      filter.status = { $nin: [OrderStatus.CANCELLED, OrderStatus.DELIVERED] };
+    }
+    else if (query.status) {
       filter.status = query.status;
     }
+
     if(query.userId){ 
       filter.userId = query.userId;
     }
@@ -72,8 +76,11 @@ export class OrdersService {
 
     if (!order) throw new NotFoundException('Order not found');
 
-    if (order.status == OrderStatus.SHIPPED || order.status == OrderStatus.DELIVERED) {
-      throw new BadRequestException(`Cannot cancel this order, it is already ${order.status?.toLowerCase()}`);
+    if (
+      (order.status == OrderStatus.SHIPPED || order.status == OrderStatus.DELIVERED) && 
+      (dto.status == OrderStatus.REJECTED || dto.status == OrderStatus.CANCELLED)  
+    ) {
+      throw new BadRequestException(`Cannot cancel/reject this order, it is already ${order.status?.toLowerCase()}`);
     }
 
     const { status, rejectionReason } = dto;

@@ -5,7 +5,8 @@ import {
   Delete,
   Param,
   Body,
-  Req
+  Req,
+  Query
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,6 +21,7 @@ import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard/roles.guard';
 import { User } from './user.schema';
+import { UserFilterDto } from './dto/get-user-filter.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -54,10 +56,11 @@ export class UsersController {
   // @UseGuards(JwtAuthGuard, RolesGuard)
   // @Roles('admin')
   // @ApiOperation({ summary: 'Get all users (Admin only)' })
-  // @Get()
-  // async getAllUsers() {
-  //   return await this.usersService.findAll();
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getAllUsers(@Query() query: UserFilterDto) {
+    return await this.usersService.findAll(query);
+  }
 
   // // GET USER BY ID (ADMIN)
   // @UseGuards(JwtAuthGuard, RolesGuard)

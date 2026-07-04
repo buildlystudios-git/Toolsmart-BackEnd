@@ -35,11 +35,6 @@ export class CategoriesService {
       }
     }
 
-    const existingCategory = await this.categoryModel.findOne({ name: dto.name });
-    if (existingCategory) {
-      throw new BadRequestException('Category with the same name already exists');
-    }
-
     let category = await this.categoryModel.create(dto);
 
     if (dto.image) {
@@ -54,10 +49,7 @@ export class CategoriesService {
   // Get all 
   async findAll(query: CategoryFilterDto) {
 
-    let {
-      id,
-      name
-    } = query;
+    let {  id, name, level, sortBy } = query;
 
     const filter: any = {  };
 
@@ -73,10 +65,55 @@ export class CategoriesService {
       filter.name = { $regex: name, $options: 'i' };
     }
 
-    const categories = await this.categoryModel.find({...filter}).sort({ order: 1 });
-    if (Object.keys(filter).length > 0 && categories.length < 1) {
-      throw new NotFoundException('No categories found matching the criteria');
+    if (level) {
+      filter.level = level;
     }
+
+    const MATCH_STAGE = {
+      $match: filter
+    }
+
+    const LOOKUP_STAGE = {
+      $lookup:{
+        from: "categories",
+        localField: "_id",
+        foreignField: "parentId",
+        as: "childCategories"
+      }
+    }
+
+    const ADD_FIELD_STAGE = {
+      $addFields:{
+        "childCategoriesCount": { $size: "$childCategories" }
+      }
+    }
+
+    const PROJECT_STAGE = {
+      $project: {
+        childCategories:0   
+      }
+    }
+
+    const sortByObj = {};
+    if(sortBy) {
+      const sortObj = JSON.parse(sortBy);
+      Object.assign(sortByObj, sortObj);
+    } else {
+      Object.assign(sortByObj, { order: 1 });
+    }
+
+    const SORT_STAGE = {
+      $sort: sortByObj
+    }
+
+    const PIPELINE: any = [];
+    Object.keys(filter).length > 0 && PIPELINE.push(MATCH_STAGE);
+    PIPELINE.push(LOOKUP_STAGE);
+    PIPELINE.push(ADD_FIELD_STAGE);
+    PIPELINE.push(PROJECT_STAGE);
+    PIPELINE.push(SORT_STAGE);
+
+    const categories = await this.categoryModel.aggregate(PIPELINE);
     
     return categories;
   }
