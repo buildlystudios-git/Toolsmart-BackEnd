@@ -44,7 +44,11 @@ export class AuthService {
   // LOGIN
   async login(dto: PhoneNumberDto) {
     const user = await this.usersService.findByPhone(dto.phoneNumber);
-    if (!user) {
+    if (!user) { 
+      const key = `newUser:${dto.phoneNumber}`;
+      // Increment count (6 hour window)
+       await this.cacheService.increment(key, 21600); // 6 hours
+
       await this.usersService.create({
         ...dto,
         isPhoneNumberVerified: true  // we will verify phone number via OTP, so set this to false initially
@@ -153,6 +157,11 @@ export class AuthService {
 
   // GENERATE TOKENS
   private async generateTokens(user: any) {
+
+    const key = `newUser:${user.phoneNumber}`;
+    // Increment count (6 hour window)
+    const newUser = await this.cacheService.get(key); // 6 hours
+
     const payload = {
       sub: user._id,
       email: user.email,
@@ -161,6 +170,12 @@ export class AuthService {
       isPhoneNumberVerified: user.isPhoneNumberVerified,
       role: user.role
     };
+
+    if(newUser){
+      payload['isNewUser'] = true;
+      // success → reset attempts
+      await this.cacheService.del(key);
+    }
 
     const jwtOptions: JwtSignOptions = {
       secret: process.env.JWT_SECRET!,
