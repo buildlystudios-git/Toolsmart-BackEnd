@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "164345578496",
+    "project_id": "toolsmart-test",
+    "storage_bucket": "toolsmart-test.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164345578496:android:9f886b27832a5517c344e5",
+        "android_client_info": {
+          "package_name": "com.toolsmarttest.test"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJ2LJu6JplHldMcopNeVHH6aW7eZJazgU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

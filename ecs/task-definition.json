@@ -56,6 +56,18 @@
           "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:toolsmart/backend:AWS_SECRET_KEY::"
         },
         {
+          "name": "FIREBASE_PROJECT_ID",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:toolsmart/backend:FIREBASE_PROJECT_ID::"
+        },
+        {
+          "name": "FIREBASE_CLIENT_EMAIL",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:toolsmart/backend:FIREBASE_CLIENT_EMAIL::"
+        },
+        {
+          "name": "FIREBASE_PRIVATE_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:toolsmart/backend:FIREBASE_PRIVATE_KEY::"
+        },  
+        {
           "name": "MONGO_URI",
           "valueFrom": "arn:aws:secretsmanager:ap-south-1:931932531235:secret:toolsmart/backend:MONGO_URI::"
         },

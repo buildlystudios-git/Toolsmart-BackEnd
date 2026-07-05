@@ -12,6 +12,8 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# firebase
+src/config/toolsmart-test-firebase-adminsdk-fbsvc-bbb6a46aae.json
 # OS
 .DS_Store
 

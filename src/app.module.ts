@@ -15,6 +15,8 @@ import { CartModule } from './carts/carts.module';
 import { OrdersModule } from './orders/orders.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { WishlistModule } from './wishlist/wishlist.module';
+import { NotificationModule } from './notification/notification.module';
+import { FirebaseModule } from './firebase/firebase.module';
 
 @Module({
   imports: [
@@ -37,7 +39,9 @@ import { WishlistModule } from './wishlist/wishlist.module';
     CartModule,
     OrdersModule,
     CouponsModule,
-    WishlistModule
+    WishlistModule,
+    NotificationModule,
+    FirebaseModule
     ],
   controllers: [AppController],
   providers: [
