@@ -53,6 +53,12 @@ export class NotificationService {
   }
 
   async sendOrderStatusNotification(order: Order) {
+    const provider = process.env.CB_PUSH_NOTIFICATION ?? 'false';
+    
+    if (provider != 'true' && !order) {
+      return;
+    }
+    
     const title = 'Order Status Updated';
     //@ts-ignore
     const orderId = order._id;

@@ -113,9 +113,9 @@ export class WishlistService {
       throw new BadRequestException('Quantity must be at least 1');
     }
 
-    // Optional: stock check
+    // Optional: quantity check
     if (product.quantity && quantity > product.quantity) {
-      throw new BadRequestException('Not enough stock');
+      throw new BadRequestException('Not enough quantity');
     }
 
     const wishlist = await this.getWishlist(userId);

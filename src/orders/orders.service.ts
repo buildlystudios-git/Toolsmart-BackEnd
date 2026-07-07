@@ -176,7 +176,7 @@ export class OrdersService {
       );
 
       /**
-       * Reduce Stock
+       * Reduce quantity
        */
       for (const item of orderItems) {
 
@@ -186,7 +186,7 @@ export class OrdersService {
           },
           {
             $inc: {
-              stock: -item.quantity,
+              quantity: -item.quantity,
             },
           },
           // {
@@ -234,10 +234,11 @@ export class OrdersService {
       /**
        * Fire & Forget Notification
        */
-      void this.notificationService
-        .sendOrderStatusNotification(order[0])
-        .catch(console.error);
-
+      if(order[0]){
+        void this.notificationService
+          .sendOrderStatusNotification(order[0])
+          .catch(console.error);
+      }
       return {
         message: 'Order placed successfully',
         order: order[0],
@@ -319,8 +320,7 @@ export class OrdersService {
       { new: true },
     );
 
-    const provider = process.env.CB_PUSH_NOTIFICATION ?? 'false';
-    if (provider !== 'true' && updatedOrder) {
+    if (updatedOrder) {
       void this.notificationService
         .sendOrderStatusNotification(updatedOrder)
         .catch((error) => {
@@ -329,7 +329,6 @@ export class OrdersService {
             error.stack,
           );
         });
-      //await this.notificationService.sendOrderStatusNotification(updatedOrder);
     }
     return updatedOrder;
   }
