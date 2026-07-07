@@ -76,7 +76,7 @@ export class Order {
   })
   deliveryType!: DeliveryType;
 
-  @Prop({ type: String, index: true, unique: true, sparse: true, required: true })
+  @Prop({ type: String, index: true, required: true })
   phoneNumber!: string;
 
   @Prop({ type: OrderAddress, required: true })

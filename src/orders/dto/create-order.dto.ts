@@ -63,12 +63,12 @@ export class CreateOrderDto {
   @IsEnum(DeliveryType)
   deliveryType!: DeliveryType;
 
-  @ApiPropertyOptional({ example: '9606191317' })
-  @IsOptional()
+  @ApiProperty({ example: '9606191317' })
   @IsString()
-  phoneNumber?: string;
+  phoneNumber!: string;
 
   @ApiProperty({ type: OrderAddressDto })
+  @IsObject()
   @ValidateNested()
   @Type(() => OrderAddressDto)
   address!: OrderAddressDto;
