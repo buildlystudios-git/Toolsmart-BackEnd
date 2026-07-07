@@ -9,6 +9,7 @@ import { Model, Types } from 'mongoose';
 import { OrderStatus } from './enums/order-status.enum';
 import { UpdateOrderStatusDto } from './dto/update-status.dto';
 import { GETOrderStatusDto } from './dto/get-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -30,9 +31,15 @@ export class OrdersService {
       0,
     );
 
+    // const orderData = {
+    //   userId: new Types.ObjectId(userId),
+    //   items,
+    //   totalAmount,
+    //   deliveryType: dto.deliveryType || 'SELF_PICKUP',
+    // };
     return this.orderModel.create({
       userId,
-      items,
+      ...dto,
       totalAmount,
     });
   }

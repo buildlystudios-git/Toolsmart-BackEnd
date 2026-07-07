@@ -15,6 +15,24 @@ class OrderItem {
   price!: number;
 }
 
+@Schema({ _id: false })
+class OrderAddress {
+  @Prop({ required: true })
+  addressLine!: string;
+
+  @Prop()
+  city?: string;
+
+  @Prop()
+  state?: string;
+
+  @Prop()
+  pincode?: string;
+
+  @Prop()
+  landmark?: string;
+}
+
 @Schema({ timestamps: true })
 export class Order {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
@@ -57,6 +75,12 @@ export class Order {
     default: DeliveryType.SELF_PICKUP,
   })
   deliveryType!: DeliveryType;
+
+  @Prop({ type: String, index: true, unique: true, sparse: true, required: true })
+  phoneNumber!: string;
+
+  @Prop({ type: OrderAddress, required: true })
+  address!: OrderAddress;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
