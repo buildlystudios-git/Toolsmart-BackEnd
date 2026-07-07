@@ -20,7 +20,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard/roles.guard';
-import { User } from './user.schema';
+import { User } from './schemas/user.schema';
 import { UserFilterDto } from './dto/get-user-filter.dto';
 
 @ApiTags('Users')

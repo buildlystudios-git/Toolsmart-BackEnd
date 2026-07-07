@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 @Schema({ _id: false })
 class CartItem {
@@ -18,8 +18,17 @@ export class Cart {
   @Prop({ type: [CartItem], default: [] })
   items!: CartItem[];
 
-  // Coupon Info
-  @Prop({ type: String, default: null })
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'Coupon',
+    default: null,
+  })
+  couponId?: Types.ObjectId | null;
+
+  @Prop({
+    type: String,
+    default: null,
+  })
   couponCode?: string | null;
 
   @Prop({ type: Number, default: 0 })
@@ -43,3 +52,5 @@ CartSchema.index({ couponCode: 1 });
 
 // Sorting / analytics
 CartSchema.index({ createdAt: -1 });
+
+export type CartDocument = HydratedDocument<Cart>;

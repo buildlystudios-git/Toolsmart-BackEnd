@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import { DeliveryType } from '../enums/delivery-type.enum';
 import { OrderStatus } from '../enums/order-status.enum';
 
@@ -35,6 +35,9 @@ class OrderAddress {
 
 @Schema({ timestamps: true })
 export class Order {
+  @Prop({ required: true, unique: true })
+  orderNumber!: string;
+
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   userId!: Types.ObjectId;
 
@@ -81,6 +84,39 @@ export class Order {
 
   @Prop({ type: OrderAddress, required: true })
   address!: OrderAddress;
+
+  @Prop({
+    type: String,
+    default: null,
+  })
+  couponCode?: string | null;
+
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'Coupon',
+    default: null,
+  })
+  couponId?: Types.ObjectId | null;
+
+  @Prop({
+    default: 0,
+  })
+  discountAmount!: number;
+
+  @Prop({
+    default: 0,
+  })
+  deliveryCharge!: number;
+
+  @Prop({
+    default: 0,
+  })
+  taxAmount!: number;
+
+  @Prop({
+    required: true,
+  })
+  grandTotal!: number;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
@@ -90,3 +126,5 @@ OrderSchema.index({ userId: 1 });
 OrderSchema.index({ status: 1 });
 OrderSchema.index({ deliveryType: 1 });
 OrderSchema.index({ createdAt: -1 });
+
+export type OrderDocument = HydratedDocument<Order>;

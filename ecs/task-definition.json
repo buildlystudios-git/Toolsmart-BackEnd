@@ -42,6 +42,10 @@
           "value": "true"
         },
         {
+          "name": "CB_PUSH_NOTIFICATION",
+          "value": "true"
+        },
+        {
           "name": "ALLOW_ORIGIN",
           "value": "http://localhost:3000,http://localhost:4000"
         }

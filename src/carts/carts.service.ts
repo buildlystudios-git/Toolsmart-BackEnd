@@ -25,7 +25,7 @@ export class CartService {
   /**
    * Common: Get or Create Cart
    */
-  private async getCartOrCreate(userId: string) {
+  public async getCartOrCreate(userId: string) {
     let cart = await this.cartModel.findOne({ userId });
 
     if (!cart) {
@@ -36,64 +36,128 @@ export class CartService {
   }
 
   /**
-   * Core: Recalculate Cart
+   * Recalculate cart totals
+   *
+   * Called whenever:
+   * - item added
+   * - quantity updated
+   * - item removed
+   * - coupon applied
+   * - coupon removed
+   * - before checkout
    */
-  private async recalculateCart(cart: any) {
-    await cart.populate('items.productId');
+  async recalculateCart(cart: Cart): Promise<void> {
+    await (cart as any).populate('items.productId');
 
-    const total = cart.items.reduce((sum, item: any) => {
-      const price = item.productId?.price || item.price || 0;
-      return sum + price * item.quantity;
-    }, 0);
+    let total = 0;
+
+    for (const item of cart.items as any[]) {
+      const product = item.productId;
+
+      if (!product) {
+        continue;
+      }
+
+      if (product.isDeleted) {
+        continue;
+      }
+
+      if (!product.isActive) {
+        continue;
+      }
+
+      total += product.price * item.quantity;
+    }
 
     cart.totalAmount = total;
 
-    if (cart.couponCode) {
-      const coupon = await this.couponModel.findOne({
-        code: cart.couponCode,
-        isActive: true,
-      });
+    cart.discount = 0;
+    cart.finalAmount = total;
 
-      if (!coupon) {
-        cart.couponCode = null;
-        cart.discount = 0;
-        cart.finalAmount = total;
-        return;
-      }
-
-      // Check Expiry
-      if (coupon.expiryDate && coupon.expiryDate < new Date()) {
-        cart.couponCode = null;
-        cart.discount = 0;
-        cart.finalAmount = total;
-        return;
-      }
-
-      if (coupon.minOrderAmount && total < coupon.minOrderAmount) {
-        cart.discount = 0;
-        cart.finalAmount = total;
-        return;
-      }
-
-      let discount = 0;
-
-      if (coupon.type === 'flat') {
-        discount = coupon.value;
-      } else {
-        discount = (total * coupon.value) / 100;
-
-        if (coupon.maxDiscount) {
-          discount = Math.min(discount, coupon.maxDiscount);
-        }
-      }
-
-      cart.discount = discount;
-      cart.finalAmount = total - discount;
-    } else {
-      cart.discount = 0;
-      cart.finalAmount = total;
+    /**
+     * No coupon
+     */
+    if (!cart.couponId) {
+      return;
     }
+
+    /**
+     * Load coupon
+     */
+    const coupon = await this.couponModel.findById(cart.couponId);
+
+    /**
+     * Coupon deleted
+     */
+    if (!coupon) {
+      cart.couponId = null;
+      cart.couponCode = null;
+      return;
+    }
+
+    /**
+     * Inactive coupon
+     */
+    if (!coupon.isActive) {
+      cart.couponId = null;
+      cart.couponCode = null;
+      return;
+    }
+
+    /**
+     * Expired coupon
+     */
+    if (
+      coupon.expiryDate &&
+      coupon.expiryDate.getTime() < Date.now()
+    ) {
+      cart.couponId = null;
+      cart.couponCode = null;
+      return;
+    }
+
+    /**
+     * Minimum order amount
+     */
+    if (
+      coupon.minOrderAmount &&
+      total < coupon.minOrderAmount
+    ) {
+      return;
+    }
+
+    let discount = 0;
+
+    /**
+     * Flat coupon
+     */
+    if (coupon.type === 'flat') {
+      discount = coupon.value;
+    }
+
+    /**
+     * Percentage coupon
+     */
+    if (coupon.type === 'percentage') {
+      discount = (total * coupon.value) / 100;
+
+      if (coupon.maxDiscount) {
+        discount = Math.min(
+          discount,
+          coupon.maxDiscount,
+        );
+      }
+    }
+
+    /**
+     * Discount should never exceed total
+     */
+    discount = Math.min(discount, total);
+
+    cart.discount = Number(discount.toFixed(2));
+    cart.finalAmount = Number((total - discount).toFixed(2));
   }
+  
 
   /**
    * GET /cart
@@ -104,7 +168,10 @@ export class CartService {
     await this.recalculateCart(cart);
     await cart.save();
 
-    return cart.populate('items.productId');
+    return {
+  message: 'Cart fetched successfully',
+  cart: await cart.populate('items.productId'),
+};
   }
 
   /**
@@ -134,7 +201,10 @@ export class CartService {
     await this.recalculateCart(cart);
     await cart.save();
 
-    return cart.populate('items.productId');
+    return {
+      message: 'Item added to cart successfully',
+      cart: await cart.populate('items.productId'),
+    };
   }
 
   /**
@@ -152,7 +222,11 @@ export class CartService {
     item.quantity = quantity;
 
     await this.recalculateCart(cart);
-    return cart.save();
+    await cart.save();
+    return {
+      message: 'Cart updated successfully',
+      cart: await cart.populate('items.productId'),
+    };
   }
 
   /**
@@ -161,12 +235,23 @@ export class CartService {
   async removeItem(userId: string, productId: string) {
     const cart = await this.getCartOrCreate(userId);
 
-    cart.items = cart.items.filter(
-      (i) => i.productId.toString() !== productId,
+    const itemIndex = cart.items.findIndex(
+      (item) => item.productId.toString() === productId,
     );
 
+    if (itemIndex === -1) {
+      throw new NotFoundException('Product not found in cart');
+    }
+
+    cart.items.splice(itemIndex, 1);
+
     await this.recalculateCart(cart);
-    return cart.save();
+    await cart.save();
+
+    return {
+      message: 'Item removed from cart successfully',
+      cart: await cart.populate('items.productId'),
+    };
   }
 
   /**
@@ -176,12 +261,20 @@ export class CartService {
     const cart = await this.getCartOrCreate(userId);
 
     cart.items = [];
+
+    cart.couponId = null;
     cart.couponCode = null;
+
     cart.discount = 0;
     cart.totalAmount = 0;
     cart.finalAmount = 0;
 
-    return cart.save();
+    await cart.save();
+
+    return {
+      message: 'Cart cleared successfully',
+      cart: await cart.populate('items.productId'),
+    };
   }
 
   /**
@@ -190,17 +283,40 @@ export class CartService {
   async applyCoupon(userId: string, code: string) {
     const cart = await this.getCartOrCreate(userId);
 
+    if (!cart.items.length) {
+      throw new BadRequestException(
+        'Cannot apply coupon to an empty cart',
+      );
+    }
+
+    const normalizedCode = code.trim().toUpperCase();
+
     const coupon = await this.couponModel.findOne({
-      code,
+      code: normalizedCode,
       isActive: true,
     });
 
-    if (!coupon) throw new BadRequestException('Invalid coupon');
+    if (!coupon) {
+      throw new BadRequestException('Invalid coupon');
+    }
 
-    cart.couponCode = code;
+    if (
+      coupon.expiryDate &&
+      coupon.expiryDate.getTime() < Date.now()
+    ) {
+      throw new BadRequestException('Coupon has expired');
+    }
+
+    cart.couponId = coupon._id as Types.ObjectId;
+    cart.couponCode = coupon.code;
 
     await this.recalculateCart(cart);
-    return cart.save();
+    await cart.save();
+
+    return { 
+      message: 'Coupon applied successfully', 
+      cart: await cart.populate('items.productId') 
+    };
   }
 
   /**
@@ -209,9 +325,21 @@ export class CartService {
   async removeCoupon(userId: string) {
     const cart = await this.getCartOrCreate(userId);
 
+    if (!cart.couponId) {
+      throw new BadRequestException(
+        'No coupon applied to cart',
+      );
+    }
+
+    cart.couponId = null;
     cart.couponCode = null;
 
     await this.recalculateCart(cart);
-    return cart.save();
+    await cart.save();
+
+    return { 
+      message: 'Coupon removed successfully', 
+      cart: await cart.populate('items.productId') 
+    };
   }
 }

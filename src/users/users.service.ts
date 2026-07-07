@@ -7,7 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './user.schema';
+import { User } from './schemas/user.schema';
 import { S3Service } from 'src/utils/s3.service';
 import * as bcrypt from 'bcrypt';
 import * as path from 'node:path';

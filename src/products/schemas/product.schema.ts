@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Product {
@@ -49,3 +49,5 @@ ProductSchema.index({ categoryId: 1 });
 ProductSchema.index({ categoryId: 1, name: 1 });
 ProductSchema.index({ price: 1 });
 ProductSchema.index({ createdAt: -1 });
+
+export type ProductDocument = HydratedDocument<Product>;

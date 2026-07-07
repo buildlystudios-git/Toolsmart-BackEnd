@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Coupon {
@@ -24,6 +24,12 @@ export class Coupon {
 
   @Prop()
   expiryDate?: Date;
+
+  // Number of times this coupon has been used
+  @Prop({ default: 0 })
+  usedCount!: number;
 }
 
 export const CouponSchema = SchemaFactory.createForClass(Coupon);
+
+export type CouponDocument = HydratedDocument<Coupon>;

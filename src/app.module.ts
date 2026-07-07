@@ -17,6 +17,7 @@ import { CouponsModule } from './coupons/coupons.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { NotificationModule } from './notification/notification.module';
 import { FirebaseModule } from './firebase/firebase.module';
+import { UserDevicesModule } from './user-devices/user-devices.module';
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import { FirebaseModule } from './firebase/firebase.module';
     CouponsModule,
     WishlistModule,
     NotificationModule,
-    FirebaseModule
+    FirebaseModule,
+    UserDevicesModule
     ],
   controllers: [AppController],
   providers: [

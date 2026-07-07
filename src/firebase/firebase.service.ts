@@ -107,6 +107,31 @@ export class FirebaseService implements OnModuleInit {
     this.logger.log('Firebase initialized successfully');
   }
 
+  async sendPushNotification(
+    token: string,
+    title: string,
+    body: string,
+    data?: Record<string, string>,
+  ) {
+    try {
+      const messageId = getMessaging().send({
+        token,
+        notification: {
+          title,
+          body,
+        },
+        data,
+      });
+
+      this.logger.log(`Notification sent successfully: ${messageId}`);
+
+      return messageId;
+    } catch (error) {
+      this.logger.error('Failed to send notification', error);
+      throw error;
+    }
+  }
+
   /**
    * Send notification to a single device
    */
