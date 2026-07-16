@@ -9,15 +9,6 @@ export class GETOrderStatusDto {
   @IsEnum(OrderStatus)
   status?: string;
 
-
-  @ApiPropertyOptional({example: "6a1bcc48522d0cdc2aa165c3"})
-  @IsOptional()
-  @IsString()
-  @Transform(({ value }) =>
-    typeof value === 'string' ? value.trim() : value,
-  )
-  userId?: string;
-
   @ApiPropertyOptional({example: "true/false"})
   @IsOptional()
   @IsString()

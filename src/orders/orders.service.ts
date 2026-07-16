@@ -15,6 +15,8 @@ import { Product } from 'src/products/schemas/product.schema';
 import { Coupon } from 'src/coupons/schemas/coupon.schema';
 import { CartService } from 'src/carts/carts.service';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { LoggedInUser } from '../auth/dto/loggedIn-user.interface';
+import { UserRole } from '../auth/dto/register.dto';
 
 @Injectable()
 export class OrdersService {
@@ -260,17 +262,17 @@ export class OrdersService {
   }
 
   //  GET /orders
-  async findAll( query: GETOrderStatusDto) {
+  async findAll( query: GETOrderStatusDto, user: LoggedInUser) {
     const filter: any = { };
     if(query['active-order']){ 
-      filter.status = { $nin: [OrderStatus.CANCELLED, OrderStatus.DELIVERED] };
+      filter.status = { $nin: [OrderStatus.REJECTED, OrderStatus.CANCELLED, OrderStatus.DELIVERED] };
     }
     else if (query.status) {
       filter.status = query.status;
     }
 
-    if(query.userId){ 
-      filter.userId = query.userId;
+    if( user.role !== UserRole.ADMIN) { 
+      filter.userId = user.sub;
     }
     
     return this.orderModel
@@ -279,10 +281,16 @@ export class OrdersService {
   }
 
   //  GET /orders/:id
-  async findById(userId: string, id: string) {
+  async findById( id: string, user: LoggedInUser) {
+    
+    const filter: any = { };
+    if( user.role !== UserRole.ADMIN) { 
+      filter.userId = user.sub;
+    }
+
     const order = await this.orderModel.findOne({
       _id: id,
-      userId,
+      ...filter
     });
 
     if (!order) throw new NotFoundException('Order not found');

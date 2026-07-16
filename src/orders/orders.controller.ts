@@ -38,14 +38,14 @@ export class OrdersController {
   @Get()
   findAll(@Req() req: any, @Query() query: GETOrderStatusDto) {
     this.logger.log(`Finding all orders with filters: ${JSON.stringify(query)}`);
-    return this.service.findAll( query);
+    return this.service.findAll( query, req.user);
   }
 
   //  GET /orders/:id
   @Get(':id')
   findOne(@Req() req: any, @Param('id') id: string) {
     this.logger.log(`Finding order with ID: ${id}`);
-    return this.service.findById(req.user.sub, id);
+    return this.service.findById( id, req.user);
   }
 
   //  PATCH /orders/:id/status
