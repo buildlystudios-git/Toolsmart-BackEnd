@@ -143,7 +143,7 @@ export class AuthService {
 
     if (!user) {
       user = await this.usersService.create({
-        role: 'retailer',
+        role: "employee",
         phoneNumber,
         isPhoneNumberVerified: true  // set to true after successful OTP verification
       });
@@ -197,7 +197,7 @@ export class AuthService {
     const refreshToken = this.jwt.sign(refreshPayload, 
       {
       secret: process.env.JWT_SECRET,
-      expiresIn: '6h',
+      expiresIn: '24h',
       issuer: process.env.JWT_ISSUER,
       audience: process.env.JWT_AUDIENCE,
     }
