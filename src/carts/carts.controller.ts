@@ -56,18 +56,6 @@ export class CartController {
     return this.service.clearCart(req.user.sub);
   }
 
-  //  DELETE /cart/:productId
-  @Delete(':productId')
-  removeItem(
-    @Req() req: any,
-    @Param('productId') productId: string,
-  ) {
-    return this.service.removeItem(
-      req.user.sub,
-      productId,
-    );
-  }
-
   // POST /cart/apply-coupon
   @Post('apply-coupon')
   applyCoupon(
@@ -83,5 +71,17 @@ export class CartController {
   @Delete('remove-coupon')
   removeCoupon(@Req() req: any) {
     return this.service.removeCoupon(req.user.sub);
+  }
+
+  //  DELETE /cart/:productId
+  @Delete('/:productId')
+  removeItem(
+    @Req() req: any,
+    @Param('productId') productId: string,
+  ) {
+    return this.service.removeItem(
+      req.user.sub,
+      productId,
+    );
   }
 }

@@ -18,6 +18,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
 import { NotificationModule } from './notification/notification.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { UserDevicesModule } from './user-devices/user-devices.module';
+import { TermsModule } from './terms/terms.module';
 
 @Module({
   imports: [
@@ -43,7 +44,8 @@ import { UserDevicesModule } from './user-devices/user-devices.module';
     WishlistModule,
     NotificationModule,
     FirebaseModule,
-    UserDevicesModule
+    UserDevicesModule,
+    TermsModule
     ],
   controllers: [AppController],
   providers: [
