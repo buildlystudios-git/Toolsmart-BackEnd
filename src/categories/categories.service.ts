@@ -3,6 +3,8 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import csv from 'csv-parser';
+import { Readable } from 'stream';
 import { InjectModel } from '@nestjs/mongoose';
 import { Category } from './schemas/category.schema';
 import { Model, Types } from 'mongoose';
@@ -14,8 +16,16 @@ import { CategoryFilterDto } from './dto/get-category-filter.dto';
 import { CategoryProductFilterDto } from './dto/get-category-product.dto';
 import { S3Service } from 'src/utils/s3.service';
 
+
+
 @Injectable()
 export class CategoriesService {
+   /**
+   * Number of records to insert in one batch
+   */
+  private readonly BATCH_SIZE =
+    Number(process.env.BULK_BATCH_SIZE) || 500;
+
   constructor(
     @InjectModel(Category.name)
     private categoryModel: Model<Category>,
@@ -175,15 +185,199 @@ export class CategoriesService {
     
     const sort: any = { order: 1 };
 
-    // if (sortBy) {
-    //   try {
-    //     const sortObj = JSON.parse(sortBy);
-    //     Object.assign(sort, sortObj);
-    //   } catch (error) {
-    //     throw new BadRequestException('Invalid sortBy format');
-    //   }
-    // }
-
     return this.productModel.find({ categoryId: id }).sort(sort);
   }
+
+  /**
+   * Bulk Upload Categories
+   */
+  async bulkUpload(
+    userId: string,
+    file: Express.Multer.File,
+  ) {
+    const rows = await this.parseCsv(file);
+
+    if (!rows.length) {
+      throw new BadRequestException('CSV is empty.');
+    }
+
+    return this.importCategories(rows);
+  }
+
+  /**
+   * Parse CSV
+   */
+  private parseCsv(
+    file: Express.Multer.File,
+  ): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      const rows: any[] = [];
+
+      Readable.from(file.buffer)
+        .pipe(csv())
+        .on('data', (row) => {
+          rows.push(row);
+        })
+        .on('end', () => resolve(rows))
+        .on('error', reject);
+    });
+  }
+
+  /**
+   * Import Categories
+   */
+  private async importCategories(rows: any[]) {
+    const errors: any[] = [];
+
+    const inserted = 0;
+
+    /**
+     * Existing Categories
+     */
+    const categories = await this.categoryModel.find(
+      {},
+      {
+        name: 1,
+        _id: 1,
+      },
+    );
+
+    /**
+     * Fast lookup map
+     */
+    const categoryMap = new Map(
+      categories.map((c) => [
+        c.name.trim().toLowerCase(),
+        c,
+      ]),
+    );
+
+    /**
+     * Batch
+     */
+    let batch: any[] = [];
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+
+      try {
+        const category =
+          await this.validateRow(
+            row,
+            categoryMap,
+          );
+
+        batch.push(category);
+
+        /**
+         * Batch Insert
+         */
+        if (
+          batch.length >= this.BATCH_SIZE
+        ) {
+          await this.insertBatch(batch);
+
+          batch = [];
+        }
+      } catch (e: any) {
+        errors.push({
+          row: i + 2,
+          error: e.message,
+        });
+      }
+    }
+
+    /**
+     * Remaining
+     */
+    if (batch.length) {
+      await this.insertBatch(batch);
+    }
+
+    return {
+      total: rows.length,
+      success:
+        rows.length - errors.length,
+      failed: errors.length,
+      errors,
+    };
+  }
+
+  /**
+   * Validate CSV Row
+   */
+  private async validateRow(
+    row: any,
+    categoryMap: Map<string, any>,
+  ) {
+    const name = row.name?.trim();
+
+    if (!name) {
+      throw new Error(
+        'Category name is required.',
+      );
+    }
+
+    if (
+      categoryMap.has(
+        name.toLowerCase(),
+      )
+    ) {
+      throw new Error(
+        'Category already exists.',
+      );
+    }
+
+    let parentId = null;
+    let level = 0;
+    let order = 0;
+
+    if (row.parentCategory) {
+      const parent =
+        categoryMap.get(
+          row.parentCategory
+            .trim()
+            .toLowerCase(),
+        );
+
+      if (!parent) {
+        throw new Error(
+          `Parent category '${row.parentCategory}' not found.`,
+        );
+      }
+
+      parentId = parent._id;
+      level = (parent.level || 0) + 1;
+      order = row.sortOrder;
+    }
+
+    return {
+      name,
+      description:
+        row.description || '',
+      parentId,
+      order:
+        Number(row.sortOrder) || 0,
+      image:
+        row.imageUrl || '',
+      isActive:
+        row.isActive?.toLowerCase() !==
+        'false',
+      level,
+    };
+  }
+
+  /**
+   * Insert Batch
+   */
+  private async insertBatch(
+    batch: any[],
+  ) {
+    await this.categoryModel.insertMany(
+      batch,
+      {
+        ordered: false,
+      },
+    );
+  }  
 }
