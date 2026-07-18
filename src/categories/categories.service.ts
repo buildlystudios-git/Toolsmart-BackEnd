@@ -348,7 +348,7 @@ export class CategoriesService {
 
       parentId = parent._id;
       level = (parent.level || 0) + 1;
-      order = row.sortOrder;
+      order = row.order;
     }
 
     return {
@@ -357,7 +357,7 @@ export class CategoriesService {
         row.description || '',
       parentId,
       order:
-        Number(row.sortOrder) || 0,
+        Number(row.order) || 0,
       image:
         row.imageUrl || '',
       isActive:
