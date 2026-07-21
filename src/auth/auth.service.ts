@@ -179,7 +179,7 @@ export class AuthService {
 
     const jwtOptions: JwtSignOptions = {
       secret: process.env.JWT_SECRET!,
-      expiresIn: '20m' as const,
+      expiresIn: '24h' as const,
       issuer: process.env.JWT_ISSUER!,
       audience: process.env.JWT_AUDIENCE!,
     };
@@ -197,7 +197,7 @@ export class AuthService {
     const refreshToken = this.jwt.sign(refreshPayload, 
       {
       secret: process.env.JWT_SECRET,
-      expiresIn: '24h',
+      expiresIn: '60d',
       issuer: process.env.JWT_ISSUER,
       audience: process.env.JWT_AUDIENCE,
     }
