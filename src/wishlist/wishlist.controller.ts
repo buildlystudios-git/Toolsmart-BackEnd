@@ -49,21 +49,6 @@ export class WishlistController {
   }
 
   /**
-   * DELETE /wishlist/:productId
-   */
-  @Delete(':productId')
-  @ApiOperation({ summary: 'Remove product from wishlist' })
-  removeFromWishlist(
-    @Req() req: any,
-    @Param('productId') productId: string,
-  ) {
-    return this.service.removeFromWishlist(
-      req.user.sub,
-      productId,
-    );
-  }
-
-  /**
    * DELETE /wishlist/clear
    */
   @Delete('clear')
@@ -106,7 +91,7 @@ export class WishlistController {
   /**
    * POST /wishlist/:productId/move-to-cart (REST cleaner)
    */
-  @Post(':productId/move-to-cart')
+  @Post('product/:productId/move-to-cart')
   @ApiOperation({ summary: 'Move item to cart via param (clean API)' })
   moveToCartByParam(
     @Req() req: any,
@@ -117,6 +102,21 @@ export class WishlistController {
       req.user.sub,
       productId,
       body.quantity,
+    );
+  }
+
+    /**
+   * DELETE /wishlist/:productId
+   */
+  @Delete('product/:productId')
+  @ApiOperation({ summary: 'Remove product from wishlist' })
+  removeFromWishlist(
+    @Req() req: any,
+    @Param('productId') productId: string,
+  ) {
+    return this.service.removeFromWishlist(
+      req.user.sub,
+      productId,
     );
   }
 }

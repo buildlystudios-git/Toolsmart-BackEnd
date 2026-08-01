@@ -25,6 +25,7 @@ export class WishlistService {
    * Get or Create Wishlist
    */
   private async getWishlist(userId: string) {
+
     let wishlist = await this.wishlistModel.findOne({ userId });
 
     if (!wishlist) {
@@ -41,8 +42,19 @@ export class WishlistService {
    * GET /wishlist
    */
   async getWishlistItems(userId: string) {
-    const wishlist = await this.getWishlist(userId);
-    return wishlist.populate('products');
+    const wishlist = await this.wishlistModel
+      .findOne({ userId })
+      .populate({ path: 'products', model: 'Product' })
+      .lean();
+
+    if (!wishlist) {
+      return {
+        userId,
+        products: [],
+      };
+    }
+
+    return wishlist;
   }
 
   /**
