@@ -19,6 +19,7 @@ import { NotificationModule } from './notification/notification.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { UserDevicesModule } from './user-devices/user-devices.module';
 import { TermsModule } from './terms/terms.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -45,7 +46,8 @@ import { TermsModule } from './terms/terms.module';
     NotificationModule,
     FirebaseModule,
     UserDevicesModule,
-    TermsModule
+    TermsModule,
+    DashboardModule
     ],
   controllers: [AppController],
   providers: [
