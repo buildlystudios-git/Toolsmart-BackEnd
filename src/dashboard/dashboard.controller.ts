@@ -1,8 +1,14 @@
-import { BadRequestException, Controller, DefaultValuePipe, Get, ParseIntPipe, Query } from '@nestjs/common';
+import { BadRequestException, Controller, DefaultValuePipe, Get, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { DashboardActivityItem } from './interfaces/dashboard-activity-item.interface';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard/jwt-auth.guard';
 
+
+@ApiTags('Dashboard')
+@ApiBearerAuth()
 @Controller('dashboard')
+@UseGuards(JwtAuthGuard)
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
